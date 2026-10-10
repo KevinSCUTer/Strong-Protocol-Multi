@@ -24,17 +24,17 @@
 
 ## 当前基线
 
-上游核对日期：**2026-10-09，Asia/Shanghai**。本次已联网核实作者 master、作者 v0.2.2 标签与 fork master 同为 `62eb113419123d9a3a63606107bbf85230c5dd2f`。这是核对当时的状态，不代表后续远端更新；本次只拉取与读取远程，未推送或部署。
+上游核对日期：**2026-10-10，Asia/Shanghai**。本次已联网核实（gh-proxy）作者 master 与 fork master 同为 `1db8e51023ae6abaec9370beb81a513d5c4d0b01`（v0.2.3）。这是核对当时的状态，不代表后续远端更新。自本次起开发线迁入小组仓库 `KevinSCUTer/Strong-Protocol-Multi`：`master` 仅镜像作者 master，`main` 基于二十人分支并定期合并 master；LongQianChen 的 `feat/IncreasePlayerCapacity` 保留为第二更新源（作者分支有更新时拉入 `main`）。
 
 | 项目 | 已核实状态 |
 |---|---|
-| 分支 | `feat/IncreasePlayerCapacity` |
-| 最近本地开发 | [DEV-20261010-04](records/2026-10-10-04-announcement-links-copy.md)：公告三种链接访问与正文原生复制已完成；83 项定向/文档及 Edge 四场景通过，资源已释放；前次大厅功能见 [DEV-20261010-03](records/2026-10-10-03-lobby-discovery.md)，后端 `8490d0f`、界面 `23dea17`；素材缓存生命周期边界见 I004；本次未推送或部署 |
-| 本次合并前的 HEAD | `668e6be02946b04e1fb127ea3be14f0a1fd72bc1`；既有 `v0.2.1-20p.2` 仍指向 `b4c6ebe`，不移动旧标签 |
-| 已合并的上游版本 | v0.2.2，`62eb113419123d9a3a63606107bbf85230c5dd2f`；保留上游完整历史，包版本 0.2.2 |
-| 最近合并提交 | `e6f26c0089a8327b408227bdf3a38721ee80f933`，父提交为 `668e6be` 与 `62eb113`；[本次记录](records/2026-10-09-03-upstream-v0.2.2.md)；之前 ZIP 修复为 `af5e647`，初次 v0.2.1 合并为 `90e01ad` |
-| `origin` | 用户 fork：`LongQianChen/Stronghold-Protocol`，不是作者仓库 |
-| 现有功能 | v0.2.2 的逐干员潜能/练度、个人教鞭选择、日语语音、本机统计及战斗修复；保留最多 20 人、固定分组卡池、组内真人优先及组间并行轮选、至多五轮联防及逐轮后续跳过投票、可滚动队伍栏、文件公告，以及大厅在线统计/房间目录/最快匹配 |
+| 分支 | `main`（小组仓库 `KevinSCUTer/Strong-Protocol-Multi`；同仓 `master` 为作者 master 的镜像分支，永不直接提交） |
+| 最近本地开发 | [DEV-20261010-05](records/2026-10-10-05-upstream-v0.2.3.md)：首次上游同步合并 v0.2.3 完成；`npm run ci` 全绿、golden 236 场景一致、四语言包 strict 100%；已推送小组仓 `master`/`main`；浏览器 E2E 与部署未执行 |
+| 本次合并前的 HEAD | `a1565bc56eda6a5cc27c007b93af2eb071c6610b`（即 LongQianChen `feat/IncreasePlayerCapacity` 当时 tip）；既有 `v0.2.1-20p.2` 仍指向 `b4c6ebe`，不移动旧标签 |
+| 已合并的上游版本 | v0.2.3，`1db8e51023ae6abaec9370beb81a513d5c4d0b01`；保留上游完整历史，包版本 0.2.3 |
+| 最近合并提交 | `ba538c94`（完整 SHA 以 `git rev-parse ba538c94` 为准），父提交为 `a1565bc5` 与 `1db8e510`；[本次记录](records/2026-10-10-05-upstream-v0.2.3.md)；v0.2.2 合并为 `e6f26c0`，初次 v0.2.1 合并为 `90e01ad` |
+| 远程 | `origin` = 小组仓 `KevinSCUTer/Strong-Protocol-Multi`（拉取经 gh-proxy，推送经 ssh.github.com:443）；`upstream` = 作者 `sganggs/Stronghold-Protocol`（只读）；`increase` = fork `LongQianChen/Stronghold-Protocol`（只读） |
+| 现有功能 | v0.2.3 的克莱门莎与新模块、开场重投、文字大小缩放、本机恢复仲裁、机器人表情及社区修复；保留最多 20 人、固定分组卡池、组内真人优先及组间并行轮选、至多五轮联防及逐轮后续跳过投票、可滚动队伍栏、文件公告，以及大厅在线统计/房间目录/最快匹配和素材预缓存 |
 | 当前领袖基准 | [D009](DECISIONS.md#d009)：基础血量 × 开战存活人数，独立模拟 ×1；退出保留百分比缩血，替代 D005 |
 | 当前卡池规则 | [D010](DECISIONS.md#d010)：六人起固定分为三/四/五人组，取消六人池；五人 III 阶 22，其他副本及私有自选库存按现有规则 |
 | 最近卡池调整 | [DEV-20261008-03](records/2026-10-08-03-pool-groups.md)，与记录同一提交；1–20 人分组和逐阶数量、跨组返还/信标及私有库存已验证 |
@@ -42,7 +42,7 @@
 | 当前策略及机变 | [D012](DECISIONS.md#d012)：固定组并行，策略跨组可重复；机变全房同一种类型，各组独立六张，允许偶然同页；全队支援仍全房。见 [DEV-20261008-05](records/2026-10-08-05-parallel-group-drafts.md)，Edge 真实 WebSocket 两会话＋18 AI 及二十席位完整模拟通过 |
 | 当前联防规则 | [D013](DECISIONS.md#d013)：轮数上限等于固定组数，至多五轮/十名不同助手，沿用全房原排序。每轮多数票可在本轮打完后取消后续全部联防，资格不变；见 [DEV-20261008-06](records/2026-10-08-06-group-unite-rounds.md) |
 | 当前公告图片 | [D015](DECISIONS.md#d015)：仅使用公告存储目录的 `assets/`，不放 public、不支持外链；普通和紧急通知共用显示，见 [使用说明](../ANNOUNCEMENTS.md#在公告中放图片) |
-| 本次上游合并验证 | 分组、机变、联防、领袖、个人教鞭/潜能、公告接口与广播、身份恢复、统计、战斗引擎、干员内容等定向测试通过；客户端静态 338、文档 31、类型与四语言包 strict 通过。Edge 154 在 1920×1080 / 1280×720 的二十席位短流程与模拟界面检查通过；未重跑完整 golden 或真实十四回合对局。完整命令与跳过项见任务记录 |
+| 本次上游合并验证 | `npm run ci` 全绿（node --test 3m12s、smoke、lint、imports、typecheck）；`npm run golden` 236 场景全部一致、零移动；四语言包 strict 100%（1300 msgid）。冲突取舍见 [DEV-20261010-05](records/2026-10-10-05-upstream-v0.2.3.md)；浏览器 E2E（Edge 二十席位短流程）与真实对局未跑，部署前补 |
 | 初次 v0.2.1 合并验证 | Edge 154；1920×1080 / 1280×720，20 席位大厅、休整、联防及旧版 22 张机变；283 个 golden 一致，20 席位 AI 对局审计无违规 |
 | 本地素材 | v0.2.2 清单的 10643 个素材＋7 个字体均存在且非空；[DEV-20261009-04](records/2026-10-09-04-local-token-assets.md) 从用户提供的作者整合包补齐 39 套召唤物的 117 个文件（3.48 MiB），本地提取清单 1481 → 1598；39 套客户端解析及补丁 SHA-256 通过；服务器部署待验证 |
 | 当前素材缓存 | [DEV-20261009-05](records/2026-10-09-05-asset-precache.md)：浏览器素材预缓存及统一包本地实现/定向验证完成，已分批本地提交；用户素材提交 `bcf38f7` 为开发起点；默认总 8 Mbps / 单 IP 4 Mbps，规则见 D016 和 [调整记录](records/2026-10-10-02-asset-cache-ip-limit.md)；未推送、未部署 |
