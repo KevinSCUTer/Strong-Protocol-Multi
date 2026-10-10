@@ -2,6 +2,11 @@
 
 《明日方舟》季节性自走棋塔防玩法「卫戍协议：盟约」的**非官方同人复刻**：浏览器即开即玩，单人或最多 20 人联机合作。
 
+鸣谢：
+开源先锋：https://github.com/sganggs/Stronghold-Protocol
+多人游玩：https://github.com/LongQianChen/Stronghold-Protocol/tree/feat/IncreasePlayerCapacity
+安卓游玩：https://github.com/Paper-Yuan/Stronghold-Protocol
+
 ![version](https://img.shields.io/badge/version-0.2.3-2ea44f)
 ![license](https://img.shields.io/badge/code%20license-GPL--3.0--or--later-blue)
 ![node](https://img.shields.io/badge/node-22%20%7C%2024-339933)
