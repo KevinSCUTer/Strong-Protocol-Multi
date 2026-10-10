@@ -254,6 +254,89 @@ services:
 
 ## 4. macOS / Linux 常驻
 
+### 源码部署：根目录 start.sh
+
+Alibaba Cloud Linux 3.2104 LTS 64 位和 Ubuntu 使用同一个源码入口。先安装 Git、Bash、tmux、
+Node.js 22 或更高版本以及随 Node 提供的 npm；`node -v` / `npm -v` 应能执行。
+`start.sh` 检查 Node 版本，准备生产依赖、浏览器 vendor 库及缺失素材，再以前台进程运行服务器。
+以下示例中的 `REPO_URL` 需先设为包含本分支功能的源码仓库 URL。
+
+```bash
+cd /root/game/stronghold
+git clone "$REPO_URL" Strong-Protocol-Multi
+cd Strong-Protocol-Multi
+git status
+tmux new -s strong_protocol_multi
+
+# 以下命令在 tmux 中执行；目录与端口按实际环境修改。
+export MP3_FOLDER=/root/game/bp_music
+export PORT=3250
+bash start.sh
+```
+
+启动输出以 `卫戍协议，启动！！！` 开始。脚本继承已导出的 `PORT`、`HOST`、`MP3_FOLDER` 和 `SP_*`，
+未设置端口时采用本分支默认 3325；它不自动读取 `.env`。开放实际使用的端口（示例 3250）的云安全组和
+主机防火墙规则后，玩家访问 `http://服务器地址:3250`。使用 `Ctrl+B`、`D` 离开 tmux 而保持服务运行；
+`tmux attach -t strong_protocol_multi` 返回。服务器为前台进程，`Ctrl+C` 结束当前实例。
+
+更新时先结束当前实例，再在仓库内执行：
+
+```bash
+git status
+git pull --ff-only
+bash start.sh
+```
+
+启动脚本不执行 Git 拉取、还原或清理，已有本地修改需按其用途自行处理。准备过程不重写已跟踪的
+`data/assets.json` 或 `package-lock.json`，不要求每次启动前还原清单。锁文件变化或缺少生产依赖时运行
+`npm ci`；安装失败会结束启动，修复网络后重新运行即可。游戏数据使用当前提交，不在启动时从移动的
+官方表重新生成。
+
+素材准备每次按当前数据和下载计划检查缺项，已有资源保留；新提交引入的模型、图片、语音和字体可以增量
+补齐。原有 atlas 的缺失贴图页也需补齐，而非仅检查 skeleton/atlas 存在。共享 `public/assets`、
+`public/fonts` 的根软链接保持原样；本地提取素材继续可选。新皮肤必须由对应版本提供资源计划、清单及
+运行时消费代码，启动脚本不会自动给本分支增加另一仓库的皮肤选择功能。下载计划先发现的额外文件只落盘，
+网页实际引用仍以随代码提交的清单为准。必需的已声明资源或字体未齐全时，准备以非零状态退出；重新运行
+接着补缺，不将失败记录为准备成功。
+
+```bash
+bash start.sh --prepare-only  # 只安装/补齐，不启动服务器
+bash start.sh --check         # 只读检查，不安装或启动
+bash start.sh --offline       # 使用本地索引及已安装资源；缺少必需资源仍失败
+bash start.sh --refresh-index # 显式刷新下载索引，再补缺
+bash start.sh --no-assets     # 显式跳过素材步骤，仅用于已自行准备资源的情况
+```
+
+`node tools/deploy.mjs` 可单独执行同一准备步骤。镜像下载的显式配置沿用第 1.1 节：例如
+`SP_ASSET_SOURCE=mirror SP_GITHUB_PROXY=https://gh-proxy.org/ bash start.sh`；Git 克隆使用代理并不会
+自动让素材下载也走该代理。缺失和下载报告写在 Git 忽略的 `.cache/`，不会上传资源到仓库。
+
+### 自定义开局 BP 音乐
+
+```bash
+# macOS 本地
+export MP3_FOLDER="$(pwd)/../bp_music"
+export PORT=3250
+bash start.sh
+```
+
+`MP3_FOLDER` 必须是服主提供的绝对路径。服务器启动时扫描该目录第一层可读、非空的普通 `.mp3` 文件
+（扩展名大小写均可；忽略隐藏文件、子目录和文件软链接），按文件名的 JavaScript 字符顺序排序。
+先检查 `count > 0`，再以 **零基下标 `有效 match seed % count`** 选一首；已有游戏规则将 seed 0
+归一化为 1，音乐采用同一个有效 seed，不消耗游戏随机流。所有玩家和观战者收到相同曲目，重刷本局与
+重连保留选择。覆盖开局信息确认、策略选择及协议启动（`INFO_CHECK`、`BAND_DRAFT`、`BATTLE_CHECK`）；
+之后恢复原有各阶段音乐。
+
+变量未设置、目录不可用/为空时使用默认 BP 音乐；选中文件之后删除或解码失败也回退默认音乐。
+浏览器首次用户操作后才能播放，音量/静音使用原设置。增删音乐后重启服务器以刷新播放列表。
+音乐经 `/api/bp-music/<不透明编号>` 提供，不公开磁盘路径，也不加入游戏素材清单或素材 ZIP。
+MP3 由服主自行提供，不随源码、教程或资源下载分发。
+
+首页「图文攻略」在新标签页打开 `/tutorial/`，保留入门、队友协作、TFT/英雄联盟和详细公式四个视角。
+教程注明其原版规则范围；当前多人分支规则以 [PLAYER_CAPACITY.md](PLAYER_CAPACITY.md) 为准。
+
+### 其他常驻方式
+
 - 临时开服：`scripts/start.sh`（或 `npm start`），保持终端窗口打开。macOS 首次会询问是否允许 node 接受传入连接，选「允许」。
 - **懒人包**（目标机器什么都不装，含 Node 与全部素材）：在一台装好 Node 22+ 与素材的机器上运行 `node scripts/make-linux-bundle.mjs`，得到 `Stronghold-Protocol-Linux/` 目录与同名 `.tar.gz`；在 Linux 上解压后 `bash start.sh` 即可（默认端口 3325，`--arch x64|arm64|both` 选内置 Node 的架构）。
 - Linux systemd（`/etc/systemd/system/stronghold.service`，路径与用户按实际修改）：

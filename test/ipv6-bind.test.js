@@ -44,7 +44,7 @@ test('listenAddress: the option wins over the environment, the environment over 
   const saved = process.env.HOST;
   try {
     delete process.env.HOST;
-    assert.deepEqual(listenAddress({}), { port: 3000, host: DEFAULT_BIND_HOST });
+    assert.deepEqual(listenAddress({}), { port: 3325, host: DEFAULT_BIND_HOST });
     assert.equal(listenAddress({ host: '' }).host, DEFAULT_BIND_HOST, 'an empty host is no host');
     process.env.HOST = '127.0.0.1';
     assert.equal(listenAddress({}).host, '127.0.0.1', 'HOST is kept when it is set');

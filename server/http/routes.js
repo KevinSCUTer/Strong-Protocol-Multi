@@ -14,6 +14,8 @@ import { ANNOUNCEMENT_ASSET_URL_PREFIX } from '../../shared/announcementAssets.j
 import { serveAnnouncementAsset } from './announcementAssets.js';
 import { ASSET_CACHE_PREFIX } from './assetCache.js';
 import { buildTag } from './buildTag.js';
+import { BP_MUSIC_PREFIX } from '../bpMusic.js';
+import { GzipCache, serveFile } from './files.js';
 import { setSecurityHeaders, sendError, sendJson, splitUrl } from './common.js';
 
 const MAX_URL_LENGTH = 4096;
@@ -39,10 +41,12 @@ export function healthReport({ startedAt, network, registry, lobby }) {
  *             rawPath: string, query: string) => Promise<void>,
  *           health: Parameters<typeof healthReport>[0], log: object,
  *           announcements?: ReturnType<typeof import('../announcements.js').createAnnouncementStore>,
- *           assetCache?: ReturnType<typeof import('./assetCache.js').createAssetCacheHandler> }} deps
+ *           assetCache?: ReturnType<typeof import('./assetCache.js').createAssetCacheHandler>,
+ *           bpMusic?: Awaited<ReturnType<typeof import('../bpMusic.js').createBpMusic>> }} deps
  * @returns {(req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => void}
  */
-export function createRequestHandler({ serveStatic, health, log, announcements, assetCache }) {
+export function createRequestHandler({ serveStatic, health, log, announcements, assetCache, bpMusic }) {
+  const musicCache = new GzipCache();
   async function handleRequest(req, res) {
     const url = req.url || '/';
     if (url.length > MAX_URL_LENGTH) { sendError(req, res, 414, '请求地址过长 · URI too long'); return; }
@@ -55,6 +59,14 @@ export function createRequestHandler({ serveStatic, health, log, announcements, 
     }
     if (parts.rawPath === '/healthz') {
       sendJson(req, res, 200, healthReport(health));
+      return;
+    }
+    if (parts.rawPath === BP_MUSIC_PREFIX.slice(0, -1) || parts.rawPath.startsWith(BP_MUSIC_PREFIX)) {
+      const id = parts.rawPath.slice(BP_MUSIC_PREFIX.length);
+      const track = await bpMusic?.resolve(id);
+      if (!track) { sendJson(req, res, 404, { error: 'BP_MUSIC_NOT_FOUND' }); return; }
+      // Keep IDs extension-less for download managers; serveFile still sees the MP3's disk extension.
+      await serveFile(req, res, track.file, track.stat, 'bp-music', [id], '', musicCache, log);
       return;
     }
     if (parts.rawPath.startsWith(ASSET_CACHE_PREFIX)) {

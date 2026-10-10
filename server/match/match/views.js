@@ -64,6 +64,7 @@ export class MatchViews {
     const v = {
       t: 'm.public',
       phase: this.phase,
+      ...(this.bpBgm ? { bpBgm: this.bpBgm } : {}),
       round: this.round,
       lastRound: this.gd.lastRound,
       deadline: this.deadline,

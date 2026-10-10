@@ -24,35 +24,43 @@ export function fontJobs() {
   return FONTS.map((f) => ({ rel: `${f.name}.${f.ext}`, urls: [joinUrl(RAW.fonts, f.src)], kind: 'font', bytes: f.bytes }));
 }
 
-async function exists(p) { try { return (await stat(p)).isFile(); } catch { return false; } }
+async function fileStat(p) { try { return await stat(p); } catch { return null; } }
+/** A file that counts as there: a real, NONEMPTY file. A zero-byte output (an interrupted run) is missing, like
+ * the downloader treats it, so a re-run regenerates it instead of preserving the empty file forever. */
+async function present(p) { const st = await fileStat(p); return !!st && st.isFile() && st.size > 0; }
 
 /**
  * Convert downloaded fonts to WOFF2 (skipping up-to-date outputs) and write fonts.css.
+ *
+ * With `addOnly` (fetch-assets --add-only: public/fonts may be another checkout's, or shared by several) nothing
+ * existing is ever rewritten: an original or a .woff2 already on disk is kept as it is (no re-encode, not even the
+ * up-to-date check), and fonts.css is only written while it does not exist yet. Missing files are still created —
+ * that is what --add-only is for — and zero-byte outputs count as missing (an interrupted run leaves them; a
+ * re-run regenerates them instead of failing the font gate forever).
+ *
  * @param {string} fontsDir absolute public/fonts directory
  * @param {(m:string)=>void} log
+ * @param {{ addOnly?: boolean }} [opts]
  * @returns {Promise<{ files: Record<string, {family:string, weight:number, woff2?:string, original?:string}>, css: string|null, errors: string[] }>}
  */
-export async function buildFonts(fontsDir, log = console.log) {
+export async function buildFonts(fontsDir, log = console.log, { addOnly = false } = {}) {
   await mkdir(fontsDir, { recursive: true });
   const files = {};
   const errors = [];
   const faces = [];
+  const cssPath = join(fontsDir, 'fonts.css');
   for (const f of FONTS) {
     const orig = join(fontsDir, `${f.name}.${f.ext}`);
     const woff2 = join(fontsDir, `${f.name}.woff2`);
-    if (!(await exists(orig))) { errors.push(`missing font ${f.name}.${f.ext}`); continue; }
+    if (!(await present(orig))) { errors.push(`missing font ${f.name}.${f.ext}`); continue; }
     const entry = { family: f.family, weight: f.weight, original: `/fonts/${f.name}.${f.ext}` };
     try {
       const src = await readFile(orig);
       readSfnt(src); // validate
       let ok = false;
-      if (await exists(woff2)) {
-        // Up to date when it decodes to exactly the source tables.
-        try {
-          const dec = decodeWoff2Tables(await readFile(woff2));
-          const s = readSfnt(src);
-          ok = dec.tables.length === s.tables.length && s.tables.every((t) => dec.tables.find((d) => d.tag === t.tag)?.data.equals(t.data));
-        } catch { ok = false; }
+      if (await present(woff2)) {
+        // --add-only keeps an existing .woff2 whatever it contains (never a shared file's owner).
+        ok = addOnly || await woff2UpToDate(src, woff2);
       }
       if (!ok) {
         const out = encodeWoff2(src);
@@ -80,7 +88,21 @@ export async function buildFonts(fontsDir, log = console.log) {
       ` * Usage: font-family: Bender, Rajdhani, 'Noto Sans SC', sans-serif;\n` +
       ` *        font-family: 'Novecento Wide', 'Saira Condensed', 'Noto Sans SC', sans-serif; */\n\n` +
       faces.join('\n\n') + '\n';
-    await writeFile(join(fontsDir, 'fonts.css'), css);
+    if (!addOnly || !(await present(cssPath))) await writeFile(cssPath, css);
   }
   return { files, css, errors };
+}
+
+/**
+ * Does the .woff2 on disk decode to exactly the tables of the source font (i.e. it is this source's conversion)?
+ * @param {Buffer} src the original .otf/.ttf
+ * @param {string} woff2 path of the .woff2
+ * @returns {Promise<boolean>}
+ */
+async function woff2UpToDate(src, woff2) {
+  try {
+    const dec = decodeWoff2Tables(await readFile(woff2));
+    const s = readSfnt(src);
+    return dec.tables.length === s.tables.length && s.tables.every((t) => dec.tables.find((d) => d.tag === t.tag)?.data.equals(t.data));
+  } catch { return false; }
 }

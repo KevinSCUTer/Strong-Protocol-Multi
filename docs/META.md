@@ -770,7 +770,9 @@ leaker's own capsule / row (`ui/hud.js uniteRemaining`) and the leakers' team ro
 `m.public` (throttled ≤ 10/s, only sent when it changed) carries the DESIGN fields plus: `drawnDisabledBonds` (the 3+4
 drawn set; `disabledBonds` = drawn ∪ the mode's static list), `hiddenBossId`, `bossRound`, `hiddenRound`, `spRound`,
 `combatMode` (`'client'` | `'server'`), `fields[].progress { killed, total, done }` (teammates' progress UI), `paused`
-(solo pause, §1.3a),
+(solo pause, §1.3a), `bpBgm` (optional server-selected opening-BP MP3 URL: effective match seed modulo the
+nonempty startup playlist count; no gameplay RNG draw; retained through setup rerolls and reconnect,
+[DEPLOY.md](DEPLOY.md#自定义开局-bp-音乐)),
 `players[].autoplay`, `players[].uniteLeft` (UNITE, leakers only: their enemies still standing, uncapped — §4),
 `players[].bonds` = `ps.alive ? bondList(gd, ps.bondsView(), { off: offBondCounts(gd, ps) }) : []` — every bond with members, layers or an active tier
 (and, last, every bond the mode never activates that the player has members of: `{ bondId, count, active: false, tier: 0, layers, off: true }`,

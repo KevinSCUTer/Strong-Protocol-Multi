@@ -59,7 +59,7 @@ test('selection: runtime files in; tests, maintainer tools, other docs, dev page
     'docs/research/07-assets.json', 'CHANGELOG.md']) {
     assert.ok(keep.includes(f), `keeps ${f}`);
   }
-  assert.equal(keep.length, 37, keep.join(' '));
+  assert.equal(keep.length, 38, keep.join(' '));
   assert.ok(keep.includes('tools/announcements.mjs'));
   assert.ok(keep.includes('docs/ANNOUNCEMENTS.md'));
   assert.ok(drop.includes('runtime/announcements/index.json'));
@@ -157,6 +157,9 @@ function fakeCheckout() {
     'Dockerfile', 'AGENTS.md', 'review/notes.md', 'docs/DESIGN.md', 'docs/research/00-INDEX.md', 'docs/research/10-networking-hosting.md']) put(f);
   put('scripts/start.sh', '#!/usr/bin/env bash\nexec node scripts/launch.mjs\n');
   fs.chmodSync(path.join(dir, 'scripts/start.sh'), 0o755);
+  put('start.sh', '#!/usr/bin/env bash\nnode tools/deploy.mjs "$@"\nexec node server/index.js\n');
+  fs.chmodSync(path.join(dir, 'start.sh'), 0o755);
+  put('tools/deploy.mjs', "import { n } from './assets/network.mjs';\n");
   for (const f of ['README.md', 'CHANGELOG.md', 'LICENSE', 'NOTICE.md', 'THIRD-PARTY-NOTICES.md', 'docs/PLAYING.md', 'docs/DEPLOY.md', 'docs/ANNOUNCEMENTS.md', 'docs/ASSET_CACHE.md']) put(f, `# ${f}\n`);
   for (const f of [...RUNTIME_RESEARCH, 'docs/research/01-core-data.json']) put(f, '{}\n');
   put('docs/img/x.jpg', PNG);
@@ -186,8 +189,8 @@ const listed = (stdout) => stdout.split('\n').filter((l) => l.startsWith('file '
 
 const SHIPPED_TRACKED = ['CHANGELOG.md', 'LICENSE', 'NOTICE.md', 'README.md', 'THIRD-PARTY-NOTICES.md', 'data/assets.json', 'data/chess.json',
   'docs/ANNOUNCEMENTS.md', 'docs/ASSET_CACHE.md', 'docs/DEPLOY.md', 'docs/PLAYING.md', ...RUNTIME_RESEARCH, 'package-lock.json', 'package.json', 'public/index.html', 'public/js/main.js',
-  'public/js/util.js', 'scripts/launch.mjs', 'scripts/start.sh', 'server/index.js', 'server/sim/rng.js', 'shared/constants.js',
-  'tools/announcements.mjs', 'tools/asset-cache-pack.mjs', 'tools/asset-cache/zip.mjs', 'tools/assets/network.mjs', 'tools/crop-board-atlas.mjs', 'tools/doctor.mjs', 'tools/fetch-assets.mjs', 'tools/local-extract/extract.py',
+  'public/js/util.js', 'scripts/launch.mjs', 'scripts/start.sh', 'server/index.js', 'server/sim/rng.js', 'shared/constants.js', 'start.sh',
+  'tools/announcements.mjs', 'tools/asset-cache-pack.mjs', 'tools/asset-cache/zip.mjs', 'tools/assets/network.mjs', 'tools/crop-board-atlas.mjs', 'tools/deploy.mjs', 'tools/doctor.mjs', 'tools/fetch-assets.mjs', 'tools/local-extract/extract.py',
   'tools/setup.mjs', 'tools/vendor.mjs'].sort();
 const ART = ['data/local-assets.json', 'public/assets/char/a.png', 'public/assets/local/g/x.png', 'public/assets/local/g/x.webp',
   'public/assets/local/spine/token/token_x/token_x.skel', 'public/assets/ui/b c.png', 'public/fonts/fonts.css', 'public/fonts/x.woff2'];

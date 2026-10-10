@@ -29,6 +29,7 @@ import { WS_MAX_PAYLOAD, createSessionStack, attachWebSocket } from './http/webs
 import { DATA_SHIM_JS, createStaticHandler } from './http/static.js';
 import { createPackRegistry } from './packs.js';
 import { createAnnouncementStore } from './announcements.js';
+import { createBpMusic } from './bpMusic.js';
 import { createAnnouncementNoticeMonitor } from './announcementNotices.js';
 import { MIME, COMPRESSIBLE, acceptsGzip, parseRange } from './http/files.js';
 import { BUILD_INPUTS, computeBuildTag, buildTag, resetBuildTag } from './http/buildTag.js';
@@ -47,7 +48,7 @@ export {
  * Build and start the HTTP + WebSocket server.
  * @param {{
  *   port?: number, host?: string, quiet?: boolean, log?: object,
- *   publicDir?: string, dataDir?: string, sharedDir?: string, packsDir?: string, announcementsDir?: string,
+ *   publicDir?: string, dataDir?: string, sharedDir?: string, packsDir?: string, announcementsDir?: string, mp3Folder?: string,
  *   MatchClass?: Function, seedFn?: () => number,
  *   lobbyGraceMs?: number, reconnectWindowMs?: number, heartbeatMs?: number, helloTimeoutMs?: number,
  *   ratePerSec?: number, rateBurst?: number, maxConnections?: number, maxRooms?: number,
@@ -68,7 +69,8 @@ export async function startServer(opts = {}) {
 
   // The process-wide singleton serves the default data dir; a custom dir (tests) gets its own copy.
   const data = opts.dataDir ? loadData(dataDir, { log }) : getData({ dir: dataDir, log });
-  const { registry, lobby, network } = createSessionStack(opts, { data, log });
+  const bpMusic = await createBpMusic({ folder: opts.mp3Folder ?? process.env.MP3_FOLDER, log });
+  const { registry, lobby, network } = createSessionStack(opts, { data, log, bpMusic });
   const announcements = createAnnouncementStore({ dir: opts.announcementsDir, root: ROOT, log });
   const announcementNotices = createAnnouncementNoticeMonitor({ store: announcements, network, log });
   // content packs (docs/PACKS.md): scanned now — the start log names them — and again whenever their folders change
@@ -81,7 +83,7 @@ export async function startServer(opts = {}) {
   resetBuildTag();
   buildTag();
 
-  const server = http.createServer(createRequestHandler({ serveStatic, announcements, assetCache, health: { startedAt, network, registry, lobby }, log }));
+  const server = http.createServer(createRequestHandler({ serveStatic, announcements, assetCache, bpMusic, health: { startedAt, network, registry, lobby }, log }));
   server.on('clientError', answerClientError);
   const wss = attachWebSocket(server, { network, log });
   // Prime before accepting connections; only commands submitted to a running server are broadcast.

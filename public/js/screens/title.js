@@ -1,6 +1,7 @@
 // Title screen: season-style backdrop, big title 卫戍协议：盟约, remembered nickname, 开始, the language menu
 // (中文 | English | every pack in public/i18n/, ui/lang.js; a title in an alphabetic script — English — is the big one and
-// the small wordmark above it hides).
+// the small wordmark above it hides), plus the 图文攻略 link to the illustrated guide package at /tutorial/
+// (public/tutorial/, converted from the generated package by tools/import-tutorial.mjs; a plain target=_blank anchor).
 //
 // Pressing 开始 validates the nickname (1..NAME_MAX_LEN chars, no control characters), stores it,
 // marks this tab as "entered" (so reloads skip the title) and hands the name to net.js, which
@@ -279,6 +280,11 @@ export function TitleScreen() {
             <span>${STATUS_TEXT[conn.status] ? t(STATUS_TEXT[conn.status]) : conn.status}</span></span>
           ${conn.status === 'online' ? html`<${PingPill} ms=${conn.ping} />` : null}
           <${GuideButton} class="title-guide" label=${t('玩法说明')} />
+          <a class="btn btn--ghost btn--sm title-tutorial" href="/tutorial/" target="_blank" rel="noopener noreferrer"
+            title=${t('图文攻略')} aria-label=${t('图文攻略')}>
+            <${Icon} name="book" class="btn__icon" />
+            <span class="btn__label">${t('图文攻略')}</span>
+          </a>
           <${AnnouncementButton} class="title-announcements" />
           <button type="button" class="title-settings fsbtn tapx" aria-label=${t('设置')} title=${t('设置')}
             onClick=${() => setSettingsOpen(true)}><${GIcon} name="gear" /></button>

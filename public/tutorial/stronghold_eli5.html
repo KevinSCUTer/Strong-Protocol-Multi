@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<!--
+  Converted by tools/import-tutorial.mjs from Tutorial/stronghold_eli5.html (source sha256 7596229402f5e687…).
+  8 embedded game images replaced by /assets/… URLs (SHA-256 match:
+  8 byte-exact, 0 via the generator's 96 px thumbnail).
+  No game art is committed (AGENTS.md); the images load from this server's local asset folder.
+  Regenerate: node tools/import-tutorial.mjs <sourceDir>
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>卫戍协议：盟约 · 从零开第一把</title>
+<style>
+:root{
+  --bg:#0b0e14; --bg2:#10141d; --panel:#131926; --panel2:#182030; --line:#242f42; --line2:#31405a;
+  --ink:#e6ecf5; --dim:#93a0b4; --faint:#647084;
+  --amber:#ffb02e; --cyan:#41c8dc; --green:#7dd87d; --red:#ff5a4e;
+  --mono:ui-monospace,'SF Mono',Menlo,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:17px/1.85 -apple-system,'PingFang SC','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
+  background-image:radial-gradient(rgba(65,200,220,.035) 1px,transparent 1px);background-size:30px 30px}
+.wrap{max-width:680px;margin:0 auto;padding:0 18px 90px}
+::selection{background:rgba(255,176,46,.35)}
+
+nav.toc{position:sticky;top:0;z-index:49;background:rgba(11,14,20,.93);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  display:flex;gap:6px;overflow-x:auto;padding:10px 16px;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{flex:0 0 auto;color:var(--dim);text-decoration:none;font-size:13px;padding:4px 12px;border:1px solid var(--line);border-radius:99px;transition:.15s}
+nav.toc a:hover{color:var(--amber);border-color:var(--amber)}
+
+header{padding:60px 0 34px}
+header .tag{font-family:var(--mono);font-size:11px;letter-spacing:.35em;color:var(--green)}
+header h1{font-size:clamp(30px,7vw,42px);line-height:1.3;margin:12px 0 10px;font-weight:800}
+header h1 b{color:var(--green)}
+header .sub{color:var(--dim);font-size:16px}
+
+section{margin-top:64px}
+h2{display:flex;align-items:center;gap:14px;font-size:23px;font-weight:800;margin-bottom:18px}
+h2 .no{flex:0 0 34px;height:34px;display:grid;place-items:center;background:var(--green);color:#08130a;font-size:17px;font-weight:800;border-radius:8px}
+p{margin:12px 0}
+b{color:#f6f9fd}
+.hl{color:var(--amber);font-weight:700}
+.hlc{color:var(--cyan);font-weight:700}
+small{color:var(--faint);font-size:13px}
+
+/* 学长气泡 */
+.sen{display:flex;gap:10px;margin:20px 0;align-items:flex-start}
+.sen .who{flex:0 0 auto;background:var(--panel2);border:1px solid var(--line2);color:var(--amber);font-size:12px;font-weight:700;
+  padding:4px 10px;border-radius:99px;margin-top:4px;white-space:nowrap}
+.sen .say{flex:1;background:var(--panel);border:1px solid var(--line);border-radius:4px 14px 14px 14px;padding:10px 14px;font-size:15px;color:var(--dim)}
+.sen .say b{color:var(--ink)}
+
+/* step 卡 */
+.step{display:flex;gap:14px;margin:16px 0;align-items:flex-start}
+.step .n{flex:0 0 40px;height:40px;border-radius:50%;background:var(--panel2);border:2px solid var(--green);color:var(--green);
+  display:grid;place-items:center;font-weight:800;font-size:17px}
+.step .bd{flex:1;border:1px solid var(--line);background:var(--panel);border-radius:4px 12px 12px 12px;padding:12px 16px}
+.step .bd .t{font-weight:800;font-size:16.5px;display:block;margin-bottom:4px}
+.step .bd p{margin:4px 0;font-size:15.5px;color:var(--dim)}
+.step .bd p b{color:var(--ink)}
+
+/* 图示卡 */
+.pic{border:1px solid var(--line);background:var(--bg2);border-radius:10px;padding:16px;margin:16px 0}
+.pic .t{font-family:var(--mono);font-size:11px;letter-spacing:.25em;color:var(--faint);margin-bottom:10px}
+.flow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14.5px}
+.flow .f{background:var(--panel2);border:1px solid var(--line2);padding:6px 12px;border-radius:6px;white-space:nowrap}
+.flow .f.hot{border-color:var(--amber);color:var(--amber)}
+.flow .a{color:var(--faint);font-family:var(--mono)}
+svg.income{width:100%;height:auto;margin:8px 0}
+svg.income rect{fill:var(--green);opacity:.85}
+svg.income rect.cap{fill:var(--amber)}
+svg.income .v{fill:var(--ink);font-size:11px;font-family:var(--mono);text-anchor:middle}
+svg.income .r{fill:var(--faint);font-size:10px;font-family:var(--mono);text-anchor:middle}
+
+/* 盟约一句话表 */
+.tbl-wrap{overflow-x:auto;margin:14px 0;border:1px solid var(--line);border-radius:10px;background:var(--bg2)}
+table{border-collapse:collapse;width:100%;min-width:520px;font-size:14px}
+th{font-size:12px;letter-spacing:.08em;color:var(--dim);text-align:left;padding:9px 12px;border-bottom:1px solid var(--line2);background:var(--panel2);font-weight:600}
+td{padding:8px 12px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+table.minor img.bicon{width:26px;height:26px;vertical-align:-7px;margin-right:8px}
+table td.b-name{white-space:nowrap;font-weight:700}
+
+/* 词典 */
+dl.dict{border:1px solid var(--line);border-radius:10px;background:var(--bg2);padding:6px 0;margin:14px 0}
+dl.dict div{padding:10px 16px;border-bottom:1px dashed var(--line)}
+dl.dict div:last-child{border-bottom:none}
+dl.dict dt{font-weight:800;color:var(--cyan);font-size:15.5px;display:inline}
+dl.dict dt::after{content:'　—　';color:var(--faint);font-weight:400}
+dl.dict dd{display:inline;color:var(--dim);font-size:15px}
+
+/* QA 折叠 */
+details{border:1px solid var(--line);background:var(--panel);border-radius:10px;margin:10px 0}
+details summary{cursor:pointer;padding:13px 16px;font-weight:700;font-size:15.5px;list-style:none;display:flex;gap:10px;align-items:center}
+details summary::before{content:'?';flex:0 0 22px;height:22px;display:grid;place-items:center;background:var(--panel2);
+  border:1px solid var(--line2);border-radius:50%;color:var(--amber);font-size:13px;font-family:var(--mono)}
+details[open] summary::before{content:'!'}
+details .body{padding:0 16px 14px;color:var(--dim);font-size:15px}
+details .body b{color:var(--ink)}
+
+.note{border:1px solid var(--line2);border-left:4px solid var(--amber);background:var(--panel);border-radius:4px 10px 10px 4px;
+  padding:12px 16px;margin:16px 0;font-size:15px}
+.note .t{color:var(--amber);font-weight:800;display:block;font-size:13.5px;margin-bottom:3px}
+
+footer{margin-top:70px;border-top:1px solid var(--line2);padding-top:18px;color:var(--faint);font-size:12.5px}
+footer p{margin:5px 0}
+a{color:var(--cyan)}
+.kbd{font-family:var(--mono);font-size:.9em;background:var(--panel2);border:1px solid var(--line2);padding:1px 6px;border-radius:4px}
+img.bicon{width:30px;height:30px;object-fit:contain;vertical-align:-8px}
+</style>
+</head>
+<body>
+<nav class="toc">
+  <a href="#g1">这是什么</a><a href="#g2">一局怎么走</a><a href="#g3">每回合三件事</a><a href="#g4">社团与充电</a>
+  <a href="#g5">第一把怎么打</a><a href="#g6">小词典</a><a href="#g7">慌了看这里</a>
+</nav>
+<div class="wrap">
+
+<header>
+  <div class="tag">STRONGHOLD PROTOCOL · 新手向</div>
+  <h1>卫戍协议：盟约<br><b>从零开第一把</b></h1>
+  <p class="sub">写给刚考完试、断网一年、什么都不知道的你。不搞术语，5 分钟读完，读完直接开一把。</p>
+</header>
+
+<!-- 1 这是什么 -->
+<section id="g1">
+  <h2><span class="no">1</span>这是个什么游戏？</h2>
+  <p>一句话：<b>下棋版的守家塔防</b>。敌人每回合从地图门口往你家走，你要做的就是——<span class="hl">花钱雇人、把人摆在路上、把怪全堵死在半路</span>。</p>
+  <p>「雇人」发生在每个回合开始前：系统给你一个「商店」，里面有干员（就是你能用的角色），花钱买下来、摆上去。敌人分 14 波，一波比一波强，全扛住就赢，漏太多怪你家血条（目标生命值）扣光就输。</p>
+  <div class="sen"><span class="who">学长</span><span class="say">你就把它想象成<b>篮球教练</b>：你不上场打球，你负责花钱签人、排首发、决定签哪些人凑同一支队。打得好不好，全看你<b>组队组得好不好</b>。</span></div>
+</section>
+
+<!-- 2 一局怎么走 -->
+<section id="g2">
+  <h2><span class="no">2</span>一局是怎么走完的？</h2>
+  <div class="pic"><div class="t">GAME FLOW</div>
+    <div class="flow">
+      <span class="f">选策略<br><small>选血量+被动</small></span><span class="a">→</span>
+      <span class="f hot">14 个回合</span><span class="a">→</span>
+      <span class="f">最终 Boss 战</span><span class="a">→</span>
+      <span class="f">结算</span>
+    </div>
+  </div>
+  <p><b>选策略</b>就是选你的「开局人设」：决定你这局有多少血、带什么被动。新手闭眼选 <span class="hl">歌利亚（45 血）</span>——血最厚，容错拉满，输了还能多撑几把。</p>
+  <p>14 个回合结构完全一样（下一节讲）。第 14 回合打完，如果家还没破，就进入最终 Boss 战：所有人一起围殴一个血条，打完结算。</p>
+  <div class="note"><span class="t">每个回合，敌人强度 +10% 起步</span>
+    怪会一波比一波猛。所以你的队伍也必须一波比一波强——这就是为什么每个回合都要花钱、买人、升级（下面细说）。</div>
+</section>
+
+<!-- 3 每回合三件事 -->
+<section id="g3">
+  <h2><span class="no">3</span>每个回合只做三件事</h2>
+  <div class="step"><div class="n">1</div><div class="bd"><span class="t">看钱包</span>
+    <p>系统发钱：<b>第 1 回合发 4 块，每回合多 1 块，最多 12 块</b>。</p>
+    <svg viewBox="0 0 640 150" class="income" role="img" aria-label="每回合收入"><rect x="29.0" y="97.3" width="36.0" height="34.7" rx="2" class=""/><text x="47.0" y="92.3" class="v">4</text><text x="47.0" y="146" class="r">1</text><rect x="71.0" y="88.7" width="36.0" height="43.3" rx="2" class=""/><text x="89.0" y="83.7" class="v">5</text><text x="89.0" y="146" class="r">2</text><rect x="113.0" y="80.0" width="36.0" height="52.0" rx="2" class=""/><text x="131.0" y="75.0" class="v">6</text><text x="131.0" y="146" class="r">3</text><rect x="155.0" y="71.3" width="36.0" height="60.7" rx="2" class=""/><text x="173.0" y="66.3" class="v">7</text><text x="173.0" y="146" class="r">4</text><rect x="197.0" y="62.7" width="36.0" height="69.3" rx="2" class=""/><text x="215.0" y="57.7" class="v">8</text><text x="215.0" y="146" class="r">5</text><rect x="239.0" y="54.0" width="36.0" height="78.0" rx="2" class=""/><text x="257.0" y="49.0" class="v">9</text><text x="257.0" y="146" class="r">6</text><rect x="281.0" y="45.3" width="36.0" height="86.7" rx="2" class=""/><text x="299.0" y="40.3" class="v">10</text><text x="299.0" y="146" class="r">7</text><rect x="323.0" y="36.7" width="36.0" height="95.3" rx="2" class=""/><text x="341.0" y="31.7" class="v">11</text><text x="341.0" y="146" class="r">8</text><rect x="365.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="383.0" y="23.0" class="v">12</text><text x="383.0" y="146" class="r">9</text><rect x="407.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="425.0" y="23.0" class="v">12</text><text x="425.0" y="146" class="r">10</text><rect x="449.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="467.0" y="23.0" class="v">12</text><text x="467.0" y="146" class="r">11</text><rect x="491.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="509.0" y="23.0" class="v">12</text><text x="509.0" y="146" class="r">12</text><rect x="533.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="551.0" y="23.0" class="v">12</text><text x="551.0" y="146" class="r">13</text><rect x="575.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="593.0" y="23.0" class="v">12</text><text x="593.0" y="146" class="r">14</text></svg>
+    <p>重点：<span class="hl">花不完的钱，回合结束直接清零</span>。不存银行、没有利息。所以别攒钱，<b>有多少花多少</b>。</p>
+  </div></div>
+  <div class="step"><div class="n">2</div><div class="bd"><span class="t">花钱：买人 / 升级 / 刷新</span>
+    <p><b>买人</b>：便宜的 2~3 块，贵的 4 块。买到的先进「整备区」（你的替补席），再拖上战场。场上最多同时站 <b>8 个</b>。</p>
+    <p><b>刷新</b>（1 块）：商店里没想要的？花 1 块换一批。</p>
+    <p><b>冻结</b>（免费）：想要的卡这回合钱不够？点冻结，这批卡留到下回合。免费，随便用。</p>
+    <p><b>升级调度中心</b>：升级后商店里才开始出现更强的角色（越贵的角色越强）。升级价还会每回合自动打折。</p>
+  </div></div>
+  <div class="step"><div class="n">3</div><div class="bd"><span class="t">点「准备」，开打</span>
+    <p>人都摆好了就点准备，自动开战——<b>你不用操作，看就行</b>。打赢了下一回合，漏怪了扣血（一回合最多扣 10 点）。</p>
+  </div></div>
+  <div class="sen"><span class="who">学长</span><span class="say">记住一个心法：<b>钱清零 = 白给</b>。每回合结算前瞄一眼钱包，还剩钱就刷新一次商店，也算花掉了。新手一半的失误都是「钱没花完」。</span></div>
+</section>
+
+<!-- 4 社团与充电 -->
+<section id="g4">
+  <h2><span class="no">4</span>核心玩法：社团（盟约）与充电（叠层）</h2>
+  <p>买人不是瞎买。每个干员都属于一个<b>社团</b>（游戏里叫「盟约」，比如【炎】【谢拉格】【维多利亚】）。</p>
+  <div class="pic"><div class="t">RULE OF 3</div>
+    <p style="margin:0"><span class="hl">同社团的干员凑够 3 个 → 社团技能开机</span>。凑够 6 个，技能升级。就这么简单。</p>
+  </div>
+  <p>但真正的强度藏在第二个系统里：<b>层数</b>。你可以把它理解成<span class="hlc">社团的充电量</span>：</p>
+  <p>有些干员的技能写着「<b>获得时，所属盟约层数 +N</b>」——意思是：你每买到他一次，他社团就充 N 格电。<b>充电是永久的，整局不清零</b>，而且就算社团技能还没开机，电也照充。</p>
+  <p>社团技能的威力全看电量：层数越高，加成越猛。<span class="hlc">人数决定「开不开机」，层数决定「火力多猛」</span>。</p>
+  <div class="sen"><span class="who">学长</span><span class="say">新手最容易犯的错（真实翻车案例）：凑够了 3 个人、社团亮了，就以为完事了。错！<b>亮灯只是开始，充电才是主线</b>。买人时优先挑带「+N层」的，电充上去，伤害翻着倍地涨。</span></div>
+  <p>还有个白送的好事：同一个干员买满 <b>3 个</b>，自动合成 1 个「精锐」（超强化版），系统还会<span class="hl">免费送你 3 选 1 的高级干员</span>。看到就拿，不花钱。</p>
+  <div class="tbl-wrap"><table class="minor">
+    <thead><tr><th>社团</th><th>开机后干嘛（一句话版）</th></tr></thead>
+    <tbody>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/yanShip.png" alt="炎">炎</td><td>全队攻击上升，6 人起白送一个喷火召唤物</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/sargonShip.png" alt="萨尔贡">萨尔贡</td><td>开技能就全体狂暴加攻速，越充越久</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/victoriaShip.png" alt="维多利亚">维多利亚</td><td>带装备才吃加成，充电每满 25 层白送一把神器</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/kjeragShip.png" alt="谢拉格">谢拉格</td><td>冻住全场敌人，打冰雕伤害额外加成</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/lateranoShip.png" alt="拉特兰">拉特兰</td><td>子弹变多，越射攻击越高，机关枪流</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/egirShip.png" alt="阿戈尔">阿戈尔</td><td>开战吃掉身前队友变强（等阶越高吃得越多）</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/siracusaShip.png" alt="叙拉古">叙拉古</td><td>下场就隐身+爆发，刺客流</td></tr>
+      <tr><td class="b-name"><img class="bicon" src="/assets/bond/kazimierzShip.png" alt="卡西米尔">卡西米尔</td><td>每上一个队友就加攻，站前排真伤反甲</td></tr>
+    </tbody>
+  </table></div>
+  <p><small>第一把别纠结选哪个——商店里哪 3 个同社团的出现得多，就顺着玩哪个。</small></p>
+</section>
+
+<!-- 5 第一把怎么打 -->
+<section id="g5">
+  <h2><span class="no">5</span>你的第一把：照着做就行</h2>
+  <div class="step"><div class="n">1</div><div class="bd"><span class="t">选策略：歌利亚（45 血）</span><p>血最厚，效果就是「没什么效果」——对新手，没有效果就是最好的效果。</p></div></div>
+  <div class="step"><div class="n">2</div><div class="bd"><span class="t">第 1~3 回合：看到「+N层」就买</span><p>便宜的 2~3 块小角色先买着，他们的充电技能从第一回合就开始攒。尽量让场上有 2~3 个同一社团的。</p></div></div>
+  <div class="step"><div class="n">3</div><div class="bd"><span class="t">第 3~5 回合：定下你的社团</span><p>看看商店一直给你哪个社团的面子，就凑它的 3 人开机。钱够就把调度中心升到 3 级左右（升级价会打折，不急）。</p></div></div>
+  <div class="step"><div class="n">4</div><div class="bd"><span class="t">第 6~10 回合：补到 6 人，疯狂充电</span><p>社团凑到 6 人技能大升级。每回合的钱全部花掉：买带「+层」的、合成精锐、拿白送的三选一。</p></div></div>
+  <div class="step"><div class="n">5</div><div class="bd"><span class="t">第 11~14 回合：把最强阵容摆上场</span><p>不上场的没意义——<b>买 8 个最强的摆上去</b>，替补席留着合成用。然后全力打 Boss。</p></div></div>
+  <div class="note"><span class="t">联机的话多一条</span>
+    和朋友一起玩时，卡池是<b>四个人共享</b>的——开局先说好各玩哪个社团，别俩人抢一队。</div>
+</section>
+
+<!-- 6 小词典 -->
+<section id="g6">
+  <h2><span class="no">6</span>小词典（游戏黑话 → 人话）</h2>
+  <dl class="dict">
+    <div><dt>干员</dt><dd>你的角色。商店里买的那种。</dd></div>
+    <div><dt>部署 / 上阵</dt><dd>把干员从替补席拖到战场上。</dd></div>
+    <div><dt>调度中心</dt><dd>商店本体。升级后能买到更强的角色。</dd></div>
+    <div><dt>整备区 / 手牌</dt><dd>替补席，能放 10 个。</dd></div>
+    <div><dt>盟约</dt><dd>干员的社团。同社团 3 人开机。</dd></div>
+    <div><dt>层数</dt><dd>社团的充电量，永久累计，越高越猛。</dd></div>
+    <div><dt>精锐</dt><dd>3 个同名合成 1 个的超强版。</dd></div>
+    <div><dt>刷新 / D 一下</dt><dd>花 1 块钱换一批商店。</dd></div>
+    <div><dt>冻结</dt><dd>免费把这批商店卡留到下回合。</dd></div>
+    <div><dt>机变</dt><dd>偶尔弹出的选择题，选卡拿奖励，闭眼选看着顺眼的。</dd></div>
+    <div><dt>联防</dt><dd>联机时：你打完了可以派人去救还没打完的队友。</dd></div>
+    <div><dt>完美作战</dt><dd>一个怪都没漏。联防的门票。</dd></div>
+  </dl>
+</section>
+
+<!-- 7 QA -->
+<section id="g7">
+  <h2><span class="no">7</span>慌了看这里</h2>
+  <details><summary>钱总是不够，怎么办？</summary><div class="body">正常。收入就是少（前几回合 4~7 块）。两个省钱技巧：① 想要的卡先<b>冻结</b>（免费），下回合有钱再买；② 升级别急，<b>升级价每回合自动降价</b>，等一回合更便宜。</div></details>
+  <details><summary>商店里没有我想要的社团？</summary><div class="body">刷新一次（1 块）碰运气。但如果刷了两三次还没有——<span class="hl">别头铁</span>，顺着商店给的面子换社团，比硬凑快得多。</div></details>
+  <details><summary>替补席（整备区）满了？</summary><div class="body">卖掉最弱的：卖出去恒返 1 块，亏是亏但不占地方。或者拿去和场上弱的换班。</div></details>
+  <details><summary>打不过，一直漏怪？</summary><div class="body">三步自查：① 场上满 8 人了吗？② 社团 3 人开机了吗？③ 层数充电了吗？前两步都没问题还漏，看看下回合的敌人预览——有<b>飞行单位</b>就得摆能打空中的（狙击位）。</div></details>
+  <details><summary>血掉了怎么办？一回合最多扣多少？</summary><div class="body">每回合最多扣 10 点，单把怪再凶也有上限，不至于一把暴毙。掉光了才淘汰——所以前期掉点血不用慌，把节奏找回来就行。</div></details>
+  <details><summary>「机变」弹出选择题选哪个？</summary><div class="body">新手阶段：带<b>钱</b>的 &gt; 带<b>层</b>的 &gt; 带<b>装备</b>的 &gt; 其他。以后熟练了再讲究。</div></details>
+  <details><summary>看完还是懵？</summary><div class="body">正常，这游戏决策点就是多。先开一把<b>标准模拟</b>（最简单的难度）输一把找感觉——所有高手的第一把都是懵的。想看深度内容再回去翻另外两版攻略。</div></details>
+</section>
+
+<footer>
+  <p>机制口径与 <a href="arknight_stronghold.html">作战简报</a> 一致（本仓库 data/*.json，官方 act2autochess 表生成）。</p>
+  <p>非官方同人参考资料 · 图片 © Hypergryph，仅供个人学习交流，请勿商用 · generated 2026-10-08</p>
+</footer>
+
+</div>
+<script>
+const links=[...document.querySelectorAll('nav.toc a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+addEventListener('scroll',()=>{let i=secs.findIndex(s=>s&&s.getBoundingClientRect().top<130);if(i<0)i=0;
+links.forEach((l,j)=>l.style.color=j===i?'var(--green)':'');},{passive:true});
+</script>
+</body>
+</html>

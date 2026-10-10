@@ -49,13 +49,19 @@
 // --add-only: for a checkout whose public/assets / public/fonts are shared with
 // another one (a git worktree): download only the files missing on disk, never
 // re-download, rewrite or delete an existing file (atlases already on disk are
-// left as they are; fonts are not rebuilt — the manifest keeps its current
-// `fonts`).
+// left as they are; missing font files and missing .woff2 / fonts.css are still
+// added, existing shared fonts are never modified). The manifest keeps its
+// current `fonts`.
+//
+// --download-only: plan and download everything, but never write
+// data/assets.json (deployment preparation: the committed manifest stays as it
+// is; the files the current plan adds beyond it are reported and are picked up
+// by the next committed manifest). Not with --prune / --allow-shrink.
 //
 // Usage: node tools/fetch-assets.mjs [--concurrency=16] [--force] [--offline]
 //                                    [--dry-run] [--refresh-index] [--prune]
 //                                    [--allow-shrink] [--add-only] [--strict]
-//                                    [--local-spines] [--help]
+//                                    [--download-only] [--local-spines] [--help]
 
 import { readFile, writeFile, mkdir, rename, readdir, unlink } from 'node:fs/promises';
 import { existsSync, realpathSync } from 'node:fs';
@@ -64,7 +70,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { Downloader } from './assets/downloader.mjs';
 import { restartForEnvProxy } from './assets/env-proxy.mjs';
 import { MirrorPolicy, selectDownloadSource, validateSource } from './assets/network.mjs';
-import { normalizeProxyPrefix } from './assets/sources.mjs';
+import { normalizeProxyPrefix, assetUrl } from './assets/sources.mjs';
 import { loadIndexes } from './assets/cache.mjs';
 import { indexAudio, VOICE_DIRS } from './assets/audio.mjs';
 import { buildPlan } from './assets/plan.mjs';
@@ -118,7 +124,11 @@ const HELP = `Usage: node tools/fetch-assets.mjs [options]
                     droppedLeaves: an entry the plan resolved and the client would lose, e.g. a
                     sound that never plays); by default such a drop is only reported
   --add-only        download only files missing on disk; never re-download, rewrite or delete an existing
-                    file, no font rebuild (a worktree sharing public/assets and public/fonts)
+                    file, never rewrite an existing font (a worktree or deployment sharing public/assets and
+                    public/fonts); missing fonts / .woff2 / fonts.css are still added
+  --download-only   plan and download, but never write data/assets.json (deployment preparation: the committed
+                    manifest stays as it is; what the current plan adds beyond it is reported). Refused with
+                    --prune / --allow-shrink
   --local-spines    rewrite ${LOCAL_ENEMY_SPINES_FILE} and ${LOCAL_TOKEN_SPINES_FILE} from the
                     enemy and token models extracted by tools/local-extract/extract.py
                     (public/assets/local/spine/enemy/, public/assets/local/spine/token/)
@@ -142,10 +152,10 @@ function envFlag(value) {
 /**
  * Parse CLI flags.
  * @param {string[]} argv
- * @returns {{concurrency:number, force:boolean, offline:boolean, dryRun:boolean, refreshIndex:boolean, prune:boolean, allowShrink:boolean, strict:boolean, addOnly:boolean, localSpines:boolean, voiceLang:string, voiceAll:boolean, help:boolean, source:string}}
+ * @returns {{concurrency:number, force:boolean, offline:boolean, dryRun:boolean, refreshIndex:boolean, prune:boolean, allowShrink:boolean, strict:boolean, addOnly:boolean, downloadOnly:boolean, localSpines:boolean, voiceLang:string, voiceAll:boolean, help:boolean, source:string}}
  */
 export function parseArgs(argv) {
-  const o = { concurrency: 16, force: false, offline: false, dryRun: false, refreshIndex: false, prune: false, allowShrink: false, strict: envFlag(process.env.SP_ASSETS_STRICT), addOnly: false, localSpines: false, voiceLang: 'cn', voiceAll: false, help: false, source: process.env.SP_ASSET_SOURCE || 'direct' };
+  const o = { concurrency: 16, force: false, offline: false, dryRun: false, refreshIndex: false, prune: false, allowShrink: false, strict: envFlag(process.env.SP_ASSETS_STRICT), addOnly: false, downloadOnly: false, localSpines: false, voiceLang: 'cn', voiceAll: false, help: false, source: process.env.SP_ASSET_SOURCE || 'direct' };
   for (const a of argv) {
     const [k, v] = a.split('=');
     if (k === '--concurrency') o.concurrency = Math.max(1, Math.min(64, parseInt(v, 10) || 16));
@@ -158,6 +168,7 @@ export function parseArgs(argv) {
     else if (k === '--allow-shrink') o.allowShrink = true;
     else if (k === '--strict') o.strict = true;
     else if (k === '--add-only') o.addOnly = true;
+    else if (k === '--download-only') o.downloadOnly = true;
     else if (k === '--local-spines') o.localSpines = true;
     else if (k === '--voice-lang') { if (!VOICE_DIRS[v]) throw new Error(`unknown --voice-lang ${v} (cn | jp | en | kr)`); o.voiceLang = v; }
     else if (k === '--voice-all') o.voiceAll = true;
@@ -165,6 +176,7 @@ export function parseArgs(argv) {
     else throw new Error(`unknown option ${a}\n${HELP}`);
   }
   if (o.addOnly && (o.prune || o.force)) throw new Error(`--add-only never deletes or rewrites files: not with --prune / --force\n${HELP}`);
+  if (o.downloadOnly && (o.prune || o.allowShrink)) throw new Error(`--download-only never writes data/assets.json: not with --prune / --allow-shrink\n${HELP}`);
   if (!o.help) validateSource(o.source);
   return o;
 }
@@ -242,14 +254,16 @@ export function strictLeafDropError(droppedLeaves, max = 10) {
 }
 
 /**
- * Exit code of a finished run: 0 only when nothing failed — every required asset is present, no leaf was dropped
- * while --strict / SP_ASSETS_STRICT is on, and the manifest was written (the shrink guard keeps the current one when
- * the rebuild would lose entries).
- * @param {{requiredMisses?:number, droppedLeaves?:number, strict?:boolean, manifestWritten?:boolean}} o
+ * Exit code of a finished run: 0 only when nothing failed — every required asset is present, the fonts could be
+ * downloaded and converted (a font the manifest's `fonts` entry points at must not silently stay broken), no leaf
+ * was dropped while --strict / SP_ASSETS_STRICT is on, and the manifest was written (the shrink guard keeps the
+ * current one when the rebuild would lose entries).
+ * @param {{requiredMisses?:number, droppedLeaves?:number, strict?:boolean, manifestWritten?:boolean, fontErrors?:number}} o
  * @returns {number} 0 or 1
  */
-export function runExitCode({ requiredMisses = 0, droppedLeaves = 0, strict = false, manifestWritten = true } = {}) {
+export function runExitCode({ requiredMisses = 0, droppedLeaves = 0, strict = false, manifestWritten = true, fontErrors = 0 } = {}) {
   if (requiredMisses) return 1;
+  if (fontErrors) return 1;
   if (strict && droppedLeaves) return 1;
   return manifestWritten ? 0 : 1;
 }
@@ -265,6 +279,24 @@ export function runExitCode({ requiredMisses = 0, droppedLeaves = 0, strict = fa
 export function orphanFiles(onDisk, referenced) {
   const listed = new Set([...referenced].map((r) => r.toLowerCase()));
   return onDisk.filter((r) => !listed.has(r.toLowerCase()) && !r.startsWith('local/'));
+}
+
+/**
+ * Files the plan put on disk that the current data/assets.json does not reference (--download-only: they are
+ * downloaded so the next committed manifest ships them, but this checkout's client cannot reach them yet).
+ * @param {Set<string>} files plan files on disk, paths relative to public/assets
+ * @param {object|null} current the current data/assets.json (null when absent)
+ * @returns {string[]} the unreferenced files, sorted
+ */
+export function unmanifestedFiles(files, current) {
+  const referenced = new Set();
+  const walk = (node) => {
+    if (typeof node === 'string') { if (node.startsWith('/assets/')) referenced.add(node); }
+    else if (Array.isArray(node)) for (const x of node) walk(x);
+    else if (node && typeof node === 'object') for (const x of Object.values(node)) walk(x);
+  };
+  walk(current);
+  return [...files].filter((rel) => !referenced.has(assetUrl(rel))).sort();
 }
 
 const mb = (n) => `${(n / 1048576).toFixed(1)} MB`;
@@ -438,17 +470,17 @@ async function main() {
     try { current = JSON.parse(await readFile(MANIFEST, 'utf8')); } catch (e) { log(`[manifest] the current ${relative(ROOT, MANIFEST)} is unreadable (${e.message}): replaced`); }
   }
 
-  // Fonts (--add-only: not rebuilt — public/fonts may be another checkout's; the manifest keeps its current entry)
-  let fontErrors = [];
-  if (!opts.offline && !opts.addOnly) {
-    const fdl = new Downloader({ root: FONTS, ledgerPath: join(CACHE, 'fonts-ledger.json'), concurrency: 4, force: opts.force, log, ...network });
+  // Fonts (--add-only: only missing files are added — public/fonts may be another checkout's; existing files,
+  // including an existing fonts.css, are never modified. The manifest keeps its current `fonts` entry)
+  if (!opts.offline) {
+    const fdl = new Downloader({ root: FONTS, ledgerPath: join(CACHE, 'fonts-ledger.json'), concurrency: 4, force: opts.force, keepExisting: opts.addOnly, log, ...network });
     await fdl.loadLedger();
     await fdl.run(fontJobs(), 'fonts');
     dl.totals.bytesDownloaded += fdl.totals.bytesDownloaded;
     for (const k of ['ok', 'skip', 'miss', 'error']) dl.totals[k] += fdl.totals[k];
   }
-  const fonts = opts.addOnly ? { files: {}, errors: [] } : await buildFonts(FONTS, log);
-  fontErrors = fonts.errors;
+  const fonts = await buildFonts(FONTS, log, { addOnly: opts.addOnly });
+  const fontErrors = fonts.errors;
 
   // Spine
   const spine = await processModels(plan.models, {
@@ -472,7 +504,7 @@ async function main() {
     stats: countStats(body, bytes, resolved.files.size),
     ...body,
   };
-  const guard = shrinkGuard(current, manifest, opts);
+  const guard = opts.downloadOnly ? { dropped: [], write: false } : shrinkGuard(current, manifest, opts);
   if (guard.write) await writeJsonAtomic(MANIFEST, manifest);
 
   // Orphans: files on disk that the manifest does not reference (e.g. after a mapping change).
@@ -484,6 +516,9 @@ async function main() {
   // Leaves the plan had resolved and the manifest loses here (no alternative of theirs on disk): reported on their own
   // line below and kept in the report, whether or not they shrink the committed manifest.
   const droppedLeaves = resolved.droppedLeaves;
+  // --download-only: what the plan added beyond the committed manifest (downloaded for the next committed manifest,
+  // not consumed by this checkout's client until it ships).
+  const unreferenced = opts.downloadOnly ? unmanifestedFiles(resolved.files, current) : [];
   const report = {
     downloadedBytes: dl.totals.bytesDownloaded,
     totals: dl.totals,
@@ -497,6 +532,8 @@ async function main() {
     fontErrors,
     orphans: opts.prune ? [] : orphans,
     pruned: opts.prune ? orphans : [],
+    downloadOnly: !!opts.downloadOnly,
+    unmanifested: unreferenced,
     manifestWritten: guard.write,
     droppedEntries: guard.dropped, // entries of the previous data/assets.json the rebuilt one lacks
     notes: plan.notes,
@@ -534,13 +571,23 @@ async function main() {
     for (const k of guard.dropped) log(`  ${k}`);
     if (!guard.write) log('  re-run to retry the downloads (--refresh-index for the audio/model indexes), or pass --allow-shrink (or --prune) to write the smaller manifest');
   }
-  log(`manifest: ${MANIFEST}${guard.write ? '' : ' (kept)'} · report: ${REPORT} · ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+  log(`manifest: ${MANIFEST}${guard.write ? '' : opts.downloadOnly ? ' (--download-only: left as it is)' : ' (kept)'} · report: ${REPORT} · ${((Date.now() - t0) / 1000).toFixed(0)} s`);
+  if (opts.downloadOnly) {
+    log(unreferenced.length
+      ? `[download-only] ${unreferenced.length} planned file(s) on disk are not in data/assets.json yet (new game data): ` +
+        `${unreferenced.slice(0, 5).join(', ')}${unreferenced.length > 5 ? ', …' : ''} — the committed manifest ships them; until then the client does not use them`
+      : '[download-only] every planned file is in data/assets.json already');
+  }
   if (required.length) log(`ERROR: ${required.length} required assets missing: ${required.slice(0, 10).join(', ')}`);
+  if (fontErrors.length) log(`ERROR: ${fontErrors.length} font error(s) — the run failed (data/assets.json's fonts entry points at these files): re-run to retry their download and conversion`);
   if (opts.strict && droppedLeaves.length) {
     log(strictLeafDropError(droppedLeaves));
     log('  a plain run downloads them again (--refresh-index if the upstream index lost them); without --strict / SP_ASSETS_STRICT this is only a warning');
   }
-  return runExitCode({ requiredMisses: required.length, droppedLeaves: droppedLeaves.length, strict: opts.strict, manifestWritten: guard.write });
+  return runExitCode({
+    requiredMisses: required.length, droppedLeaves: droppedLeaves.length, strict: opts.strict,
+    manifestWritten: opts.downloadOnly ? true : guard.write, fontErrors: fontErrors.length,
+  });
 }
 
 // run only as a script (tests import parseArgs / shrinkGuard)

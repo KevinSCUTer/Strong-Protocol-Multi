@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<!--
+  Converted by tools/import-tutorial.mjs from Tutorial/lol.html (source sha256 5e9c5770f9a07690…).
+  147 embedded game images replaced by /assets/… URLs (SHA-256 match:
+  31 byte-exact, 116 via the generator's 96 px thumbnail).
+  No game art is committed (AGENTS.md); the images load from this server's local asset folder.
+  Regenerate: node tools/import-tutorial.mjs <sourceDir>
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>卫戍协议：盟约 · 金铲铲玩家速成</title>
+<style>
+:root{
+  --bg:#0a0d12; --bg2:#0d1219; --panel:#10161f; --panel2:#141b26; --line:#232d3b; --line2:#2e3a4c;
+  --ink:#e2e8f1; --dim:#8b97a9; --faint:#5c6878;
+  --amber:#ffb02e; --amber2:#ff8f00; --gold:#e8c04a; --cyan:#41c8dc; --red:#ff5a4e; --green:#7dd87d;
+  --tft:#e8c04a; --ark:#ff8f00;
+  --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font:16px/1.75 -apple-system,'PingFang SC','HarmonyOS Sans SC','Microsoft YaHei',sans-serif;
+  background-image:
+    linear-gradient(rgba(255,176,46,.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,176,46,.03) 1px,transparent 1px);
+  background-size:56px 56px;}
+.wrap{max-width:760px;margin:0 auto;padding:0 16px 80px}
+::selection{background:rgba(255,176,46,.35)}
+
+/* hazard strip */
+.hazard{position:sticky;top:0;z-index:50;height:6px;background:repeating-linear-gradient(-45deg,var(--amber) 0 12px,#0a0d12 12px 24px);opacity:.85}
+nav.toc{position:sticky;top:6px;z-index:49;background:rgba(10,13,18,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line);
+  display:flex;gap:6px;overflow-x:auto;padding:8px 16px;scrollbar-width:none}
+nav.toc::-webkit-scrollbar{display:none}
+nav.toc a{flex:0 0 auto;color:var(--dim);text-decoration:none;font-size:12.5px;padding:4px 10px;border:1px solid var(--line);border-radius:2px;
+  clip-path:polygon(6px 0,100% 0,calc(100% - 6px) 100%,0 100%);transition:.15s}
+nav.toc a:hover{color:var(--amber);border-color:var(--amber2)}
+
+header.hero{padding:56px 0 30px;position:relative}
+header.hero .tag{font-family:var(--mono);font-size:11px;letter-spacing:.35em;color:var(--amber);text-transform:uppercase}
+header.hero h1{font-size:clamp(28px,6vw,40px);line-height:1.25;margin:10px 0 4px;font-weight:800;letter-spacing:.02em}
+header.hero h1 b{color:var(--amber)}
+header.hero .sub{color:var(--dim);font-size:15px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px}
+.chips span{font-size:12.5px;color:var(--ink);border:1px solid var(--line2);padding:4px 10px;background:var(--panel);
+  clip-path:polygon(8px 0,100% 0,calc(100% - 8px) 100%,0 100%)}
+.chips span b{color:var(--amber);font-family:var(--mono)}
+
+section{margin-top:54px}
+h2{display:flex;align-items:center;gap:12px;font-size:21px;font-weight:800;padding:10px 14px;background:linear-gradient(90deg,rgba(255,176,46,.14),transparent 70%);
+  border-left:4px solid var(--amber);clip-path:polygon(0 0,100% 0,calc(100% - 14px) 100%,0 100%);margin-bottom:6px}
+h2 .no{font-family:var(--mono);font-size:13px;color:var(--amber);letter-spacing:.1em}
+h2 + .lead{color:var(--dim);font-size:14.5px;margin:8px 2px 18px}
+h3{font-size:17px}
+b{color:#f4f7fc}
+small{color:var(--faint);font-size:12px}
+p{margin:10px 0}
+.note{border:1px solid var(--line2);background:var(--panel);padding:12px 14px;margin:14px 0;font-size:14.5px;position:relative}
+.note::before{content:'';position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--cyan)}
+.note.warn::before{background:var(--red)}
+.note.gold::before{background:var(--gold)}
+.note .t{font-weight:700;color:var(--cyan);display:block;font-size:13px;margin-bottom:4px}
+.note.warn .t{color:var(--red)}
+.note.gold .t{color:var(--gold)}
+
+/* VS cards */
+.vs{display:grid;grid-template-columns:1fr;gap:10px;margin:18px 0}
+.vsc{border:1px solid var(--line2);background:var(--panel)}
+.vsc .hd{display:flex;align-items:baseline;gap:10px;padding:10px 14px;border-bottom:1px dashed var(--line2)}
+.vsc .hd .n{font-family:var(--mono);color:var(--amber);font-size:13px}
+.vsc .hd .q{font-weight:800;font-size:16px}
+.vsc .cols{display:grid;grid-template-columns:1fr;gap:0}
+.vsc .side{padding:10px 14px;font-size:14.5px}
+.vsc .side + .side{border-top:1px dashed var(--line2)}
+.vsc .side .who{display:inline-block;font-size:11.5px;font-weight:800;letter-spacing:.15em;padding:2px 8px;margin-bottom:6px;
+  clip-path:polygon(4px 0,100% 0,calc(100% - 4px) 100%,0 100%)}
+.vsc .side.tft .who{color:#1a1405;background:var(--tft)}
+.vsc .side.ark .who{color:#140a00;background:var(--ark)}
+@media(min-width:620px){.vsc .cols{grid-template-columns:1fr 1fr}.vsc .side + .side{border-top:none;border-left:1px dashed var(--line2)}}
+
+/* ladder svg */
+svg.ladder{width:100%;height:auto;margin:10px 0;color:var(--dim)}
+svg.ladder .axis path{stroke:var(--line2);stroke-width:1.5;fill:none}
+svg.ladder .ax{fill:var(--faint);font-size:11px;font-family:var(--mono)}
+svg.ladder .slope{stroke:var(--amber);stroke-width:2.5;fill:none;stroke-dasharray:6 5}
+svg.ladder .step rect{fill:var(--cyan);opacity:.9}
+svg.ladder .step text{fill:var(--cyan);font-size:12px}
+svg.ladder .lay circle{fill:var(--amber)}
+svg.ladder .lay text{fill:var(--amber);font-size:12px}
+svg.ladder .cap-t{fill:var(--dim);font-size:12px}
+
+svg.income{width:100%;height:auto;margin:12px 0}
+svg.income rect{fill:var(--amber);opacity:.85}
+svg.income rect.cap{fill:var(--cyan)}
+svg.income .v{fill:var(--ink);font-size:11px;font-family:var(--mono);text-anchor:middle}
+svg.income .r{fill:var(--faint);font-size:10px;font-family:var(--mono);text-anchor:middle}
+
+/* bond sections */
+.bond{border:1px solid var(--line2);background:var(--panel);margin:22px 0;position:relative;overflow:hidden}
+.bond::before{content:'';position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--bond)}
+.bond h3{display:flex;align-items:center;gap:10px;padding:12px 16px 8px;font-size:18px}
+.bond .th{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--bond);border:1px solid;border-radius:2px;padding:2px 8px;white-space:nowrap}
+img.bicon{width:34px;height:34px;object-fit:contain;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--bond) 60%,transparent))}
+ul.plain{padding:4px 16px 10px;list-style:none}
+ul.plain li{font-size:14.5px;padding:3px 0 3px 18px;position:relative;color:var(--ink)}
+ul.plain li::before{content:'▸';position:absolute;left:2px;color:var(--bond)}
+.bond .fx{padding:6px 16px}
+.bond .fx code{display:inline-block;font-family:var(--mono);font-size:12.5px;color:var(--cyan);background:var(--bg2);
+  border:1px solid var(--line);padding:3px 8px;margin:2px 4px 2px 0}
+.bond .tft{padding:8px 16px;font-size:13.5px;color:var(--dim);border-top:1px dashed var(--line2)}
+.bond .tft b{color:var(--gold)}
+
+/* tables */
+.tbl-wrap{overflow-x:auto;margin:12px 0;border:1px solid var(--line);background:var(--bg2)}
+table{border-collapse:collapse;width:100%;min-width:560px;font-size:13.5px}
+th{font-size:12px;letter-spacing:.08em;color:var(--dim);text-align:left;padding:8px 10px;border-bottom:1px solid var(--line2);
+  background:var(--panel2);white-space:nowrap;font-weight:600}
+td{padding:7px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+tr:last-child td{border-bottom:none}
+table.roster td.c-tier{white-space:nowrap}
+.dots{display:inline-flex;gap:2px}
+.dots i{width:6px;height:6px;background:var(--amber);display:block;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%)}
+td.c-ava{width:44px}
+img.ava{width:38px;height:38px;object-fit:cover;border-radius:3px;border:1px solid var(--line2);display:block;background:#000}
+td.c-name{white-space:nowrap;font-weight:600}
+td.c-name small{display:block;font-weight:400}
+td.c-trait{color:var(--dim);font-size:12.5px;line-height:1.55}
+.lb{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:1px 6px;margin-right:6px;border-radius:2px}
+.lb.lg{color:#0a0d12;background:var(--amber)}
+.lb.lp{color:#0a0d12;background:var(--cyan)}
+table.minor td.m-name{white-space:nowrap;font-weight:700}
+table.minor img.bicon{width:24px;height:24px;vertical-align:-6px;margin-right:6px}
+table.minor td.m-note{color:var(--cyan);font-size:12.5px;white-space:nowrap}
+table.bands td.hp{font-family:var(--mono);color:var(--amber);font-weight:700;text-align:right}
+
+/* pending */
+.pending{border:1px dashed var(--amber2);background:rgba(255,176,46,.06);padding:18px 16px;margin:16px 0;text-align:center}
+.pending .t{color:var(--amber);font-weight:800;letter-spacing:.2em;font-size:13px;animation:pulse 1.6s infinite}
+.pending p{color:var(--dim);font-size:13.5px}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+
+/* mid-game cores */
+.cores{display:grid;grid-template-columns:1fr;gap:8px;margin:8px 0 18px}
+@media(min-width:560px){.cores{grid-template-columns:1fr 1fr}}
+.core{display:flex;gap:10px;align-items:center;border:1px solid var(--line);background:var(--bg2);padding:8px 10px}
+.core .ava{width:44px;height:44px;flex:0 0 44px}
+.core b{font-size:14.5px}
+.core small{display:block;color:var(--dim);font-size:12px;line-height:1.5}
+.cores h4, h4.all{margin:6px 0 2px;font-size:14.5px}
+h4.all{color:var(--gold)}
+
+/* fold */
+details{border:1px solid var(--line2);background:var(--panel);margin:12px 0}
+details summary{cursor:pointer;padding:11px 14px;font-weight:700;font-size:14.5px;list-style:none;display:flex;align-items:center;gap:8px}
+details summary::before{content:'+';font-family:var(--mono);color:var(--amber);font-size:16px}
+details[open] summary::before{content:'−'}
+details summary small{color:var(--faint);font-weight:400}
+details .body{padding:0 14px 12px}
+
+footer{margin-top:64px;border-top:1px solid var(--line2);padding-top:18px;color:var(--faint);font-size:12.5px}
+footer p{margin:6px 0}
+footer .src b{color:var(--dim)}
+.kbd{font-family:var(--mono);font-size:.9em;background:var(--panel2);border:1px solid var(--line2);padding:1px 6px;border-radius:3px}
+a{color:var(--cyan)}
+</style>
+</head>
+<body>
+<div class="hazard"></div>
+<nav class="toc">
+  <a href="#s0">0 纠偏</a><a href="#s1">1 叠层</a><a href="#s2">2 经济</a><a href="#s3">3 BP·过渡</a>
+  <a href="#s4">4 中期核心</a><a href="#s5">5 运营思路</a><a href="#s6">联机</a><a href="#s7">小小英雄</a>
+</nav>
+<div class="wrap">
+
+<header class="hero">
+  <div class="tag">STRONGHOLD PROTOCOL · COVENANT</div>
+  <h1>卫戍协议：盟约<br><b>金铲铲玩家速成手册</b></h1>
+  <p class="sub">写给被「自走棋」三个字骗进来的老哥。你已经会玩 80% 了——剩下 20% 全是这台「叠层机器」。</p>
+  <div class="chips">
+    <span>回合 <b>14+Boss</b>（标准 9）</span><span><b>无</b>利息 / 无连胜奖励</span><span>盟约 <b>8 大 + 15 小</b></span>
+    <span>调度中心满级 <b>6</b></span><span>上场 <b>8</b> 人 · 板凳 <b>10+5</b></span><span>联机 <b>1–4</b> 人</span>
+  </div>
+</header>
+
+<!-- ============ 0 纠偏 ============ -->
+<section id="s0">
+  <h2><span class="no">§0</span>五大纠偏：你以为的 vs 实际上的</h2>
+  <p class="lead">你自己总结的那五条，全对。展开补一层「所以该怎么打」。</p>
+  <div class="vs">
+    <div class="vsc">
+      <div class="hd"><span class="n">01</span><span class="q">金币：没有利息，没有连胜</span></div>
+      <div class="cols">
+        <div class="side tft"><span class="who">金铲铲</span>攒钱吃利息、连败攒经济，后期一波 D 穿。</div>
+        <div class="side ark"><span class="who">卫戍协议</span>收入固定 <b>第 N 回合 = 3+N 金，9 回合后封顶 12 金</b>；<b>每回合剩下的钱直接清零</b>（只有策略「坎诺特·利滚利」例外）。压力被平摊到每一回合——<b>花干净就是赚</b>。</div>
+      </div>
+    </div>
+    <div class="vsc">
+      <div class="hd"><span class="n">02</span><span class="q">叠层：凑出人数只是「开机」</span></div>
+      <div class="cols">
+        <div class="side tft"><span class="who">金铲铲</span>凑羁绊人数 = 直接拿满 BUFF，人数到了就完事。</div>
+        <div class="side ark"><span class="who">卫戍协议</span>人数只负责<b>点亮</b>盟约（3/6/9 人），点亮后真正的强度来自<b>层数</b>——另一条独立计数，由干员的「获得时层数+N」特质往上垒，<b>全场永久保留、只涨不跌</b>。你把叙拉古只玩到 7 层，等于开了机没通电。</div>
+      </div>
+    </div>
+    <div class="vsc">
+      <div class="hd"><span class="n">03</span><span class="q">棋子：凑精锐 ≠ 追三星</span></div>
+      <div class="cols">
+        <div class="side tft"><span class="who">金铲铲</span>三星五费是终点，追就追到底。</div>
+        <div class="side ark"><span class="who">卫戍协议</span><b>3 个同名合成 1 个「精锐」</b>（属性大涨、特质翻倍），并立刻白送一个<b>高一阶干员三选一（0 金）</b>。精锐化是「过路费」不是「终点」——凑满关键卡的精锐后，钱该转去铺层数。</div>
+      </div>
+    </div>
+    <div class="vsc">
+      <div class="hd"><span class="n">04</span><span class="q">BP：不是转圈圈选人</span></div>
+      <div class="cols">
+        <div class="side tft"><span class="who">金铲铲</span>八人按顺序选英雄，选完进游戏。</div>
+        <div class="side ark"><span class="who">卫戍协议</span>开局三连决策：<b>禁用盟约</b>（险境以上禁 3 大羁绊 + 4 小羁绊）→ <b>轮选策略</b>（= 选小小英雄，随机顺序、可跳过一次）→ 之后还有<b>机变</b>（每回合弹出的选择卡：悬赏目标、机密商店……）。决策点前置且贯穿全场。</div>
+      </div>
+    </div>
+    <div class="vsc">
+      <div class="hd"><span class="n">05</span><span class="q">小小英雄：血量就是策略强度</span></div>
+      <div class="cols">
+        <div class="side tft"><span class="who">金铲铲</span>小小英雄是外观 + 少量机制。</div>
+        <div class="side ark"><span class="who">卫戍协议</span>「策略」决定你的<b>目标生命值（20~45）+ 一整条专属规则</b>。你实测的 <b>45 血歌利亚（“铁男”）</b>和 <b>25 血阿米娅（“兔兔”，盟约越多全体越强）</b>完全正确——详见 <a href="#s7">§7</a>。</div>
+      </div>
+    </div>
+  </div>
+  <div class="note warn"><span class="t">你那局的复盘</span>
+    叙拉古 7 层 ≈ 只买了两三张、还都不是叠层特质好的卡。6 人点亮后，叙拉古的价值在 <b>32+0.4×层 秒的隐匿 + 3% 概率 5000+50×层 真伤</b>——层数不上 30，这套盟约等于没玩。§1 教你怎么把层垒上去。</div>
+</section>
+
+<!-- ============ 1 叠层 ============ -->
+<section id="s1">
+  <h2><span class="no">§1</span>叠层才是核心：人数开机，层数供电</h2>
+  <p class="lead">官方文本看不懂很正常——它把三件事塞在一句话里。拆开就三步：</p>
+  <svg viewBox="0 0 640 240" class="ladder" role="img" aria-label="激活与层数的关系">
+  <defs><marker id="ar" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0L8 4L0 8z" fill="currentColor"/></marker></defs>
+  <g class="axis"><path d="M40 200 H620" marker-end="url(#ar)"/><path d="M40 200 V20" marker-end="url(#ar)"/></g>
+  <text x="620" y="222" text-anchor="end" class="ax">进度 →</text>
+  <text x="30" y="26" class="ax" transform="rotate(-90 30 26)" text-anchor="end">强度 →</text>
+  <path class="slope" d="M80 176 L560 60"/>
+  <g class="step">
+    <rect x="80" y="176" width="150" height="6"/><text x="80" y="164">3 人 · 激活</text>
+    <rect x="250" y="140" width="150" height="6"/><text x="250" y="128">6 人 · 大质变</text>
+    <rect x="420" y="104" width="140" height="6"/><text x="420" y="92">9 人 / 高层 · 天花板</text>
+  </g>
+  <g class="lay">
+    <circle cx="120" cy="172" r="5"/><text x="120" y="152" text-anchor="middle">层数 L</text>
+    <circle cx="240" cy="152" r="5"/><circle cx="360" cy="130" r="5"/><circle cx="480" cy="108" r="5"/>
+  </g>
+  <text x="330" y="228" text-anchor="middle" class="cap-t">人数是台阶（激活），层数是斜率（每层效果），两条线永远只涨不跌</text>
+</svg>
+  <div class="note"><span class="t">三步读懂任何盟约</span>
+    <b>① 点亮</b>：场上凑够 N 个<b>不同</b>成员（3 / 6，炎还有 9），盟约开机。这一步金铲铲玩家秒懂。<br>
+    <b>② 叠层</b>：另一条独立计数 L。主要来源是干员特质的「<b>获得时，所属盟约层数 +N（无需激活盟约）</b>」——买人/白拿干员都算；精锐化后特质<b>翻倍</b>。此外：机变的「盟誓」卡一次 +8~12 层（队友同得）、助力盟约每回合全场 +2、部分策略与装备也产层。L <b>永不清零、不会减少</b>，封顶 999（联防和最终攻势里不再叠层）。<br>
+    <b>③ 供电</b>：盟约的效果公式里都挂着 L（攻击 +23%+0.9%×L、持续 5+0.22×L 秒……）。<b>人数是台阶，层数是斜率。</b></div>
+  <div class="note gold"><span class="t">叠层手 = 这套游戏的「D 牌理由」</span>
+    星熊（4 阶炎/坚守）：获得时 <b>+8 层</b>，精锐 <b>+16</b>；录武官（5 阶）：获得时 炎 +6、奇迹 +3（精锐翻倍）；角峰（1 阶谢拉格）：+2（精锐 +4）。<b>买对了人，层自己会长。</b>下面每张表里金色 <span class="lb lg">+N层/获得</span> 标签就是纯叠层手，青色 <span class="lb lp">+N层/回合</span> 是每回合固定产层。</div>
+
+  <section class="bond" id="yanShip" style="--bond:#ff5a3c">
+  <h3><img class="bicon" src="/assets/bond/yanShip.png" alt="炎">炎<span class="th">激活 3 / 6 / 9</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：全体【炎】攻击 <b>+23%</b>，之后每 1 层再 <b>+0.9%</b>（线性，无上限）。</li><li><b>6 人</b>：开战召唤「炎佑」——攻击/生命 = 全体【炎】总和的 <b>30%</b>，同时打 3 个目标，攻击附带 20% 攻击的灼燃 + 周围 20% 元素脆弱。</li><li><b>9 人</b>：炎佑变 <b>2 只</b>、攻击 ×1.5、受到伤害 −90%。</li><li>一句话：<b>人数决定召唤物，层数决定攻击乘区</b>；层越高全队越痛，9 人是质变。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「召唤使」：6 羁绊召唤生物入场，本体数值越高召唤物越凶。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_2026_yu.png" alt="余" loading="lazy"></td><td class="c-name">余<small>重装</small></td><td class="c-trait">&lt;进入休整期时&gt;若同一行有3名干员，随机获得1名当前人数最多盟约的干员</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4082_qiubai.png" alt="仇白" loading="lazy"></td><td class="c-name">仇白<small>近卫</small></td><td class="c-trait">【炎】【突袭】每叠加3层，本干员攻击束缚和停顿状态的敌人造成的伤害提升1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1040_blaze2.png" alt="烛煌" loading="lazy"></td><td class="c-name">烛煌<small>术师</small></td><td class="c-trait"><span class="lb lg">+5→+10层/获得</span>&lt;获得时&gt;【炎】【维多利亚】层数+5（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_2015_dusk.png" alt="夕" loading="lazy"></td><td class="c-name">夕<small>术师</small></td><td class="c-trait"><span class="lb lp">+2→+4层/回合</span>&lt;休整期结束时&gt;当前休整期每获得过一名干员，使已激活的【炎】【奥术】层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4196_reckpr.png" alt="录武官" loading="lazy"></td><td class="c-name">录武官<small>医疗</small></td><td class="c-trait"><span class="lb lg">+6→+12层/获得</span>&lt;获得时&gt;【炎】层数+6、【奇迹】层数+3（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_136_hsguma.png" alt="星熊" loading="lazy"></td><td class="c-name">星熊<small>重装</small></td><td class="c-trait"><span class="lb lg">+8→+16层/获得</span>&lt;获得时&gt;自身所属盟约层数+8（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_308_swire.png" alt="诗怀雅" loading="lazy"></td><td class="c-name">诗怀雅<small>近卫</small></td><td class="c-trait">&lt;获得时&gt;获得1个“盟约之币”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1033_swire2.png" alt="琳琅诗怀雅" loading="lazy"></td><td class="c-name">琳琅诗怀雅<small>特种</small></td><td class="c-trait">&lt;休整期结束时&gt;使下个休整期额外获得1资金（若已激活【炎】/【投资人】此特质在整备区也有效）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4122_grabds.png" alt="小满" loading="lazy"></td><td class="c-name">小满<small>辅助</small></td><td class="c-trait"><span class="lb lp">+1→+2层/回合</span>&lt;休整期结束时&gt;本回合每获得过1名干员，使已激活的【炎】层数+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_306_leizi.png" alt="惊蛰" loading="lazy"></td><td class="c-name">惊蛰<small>术师</small></td><td class="c-trait">&lt;获得时&gt;获得等于当前调度中心等级的【炎】层数（无需激活盟约）</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="sargonShip" style="--bond:#e8b13c">
+  <h3><img class="bicon" src="/assets/bond/sargonShip.png" alt="萨尔贡">萨尔贡<span class="th">激活 3 / 6</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：任一【萨尔贡】开技能，全体【萨尔贡】攻速 <b>+12</b>（最多叠 25 层 = +300），持续 <b>5 + 0.22×层</b> 秒——层数全花在“持续时间”上。</li><li><b>6 人</b>：每次开技能再给全体【萨尔贡】攻击 <b>+12%</b>（至多 +300%）。</li><li>策略【娜仁图亚】会改写 6 人效果（装备共享流）。</li><li>一句话：<b>越叠越久的全队狂暴</b>，转起来像绞肉机。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「决斗大师/挑战者」：靠攻速滚雪球，层数=增益持续时间。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_472_pasngr.png" alt="异客" loading="lazy"></td><td class="c-name">异客<small>术师</small></td><td class="c-trait">【萨尔贡】【迅捷】【精准】每叠加3层，本干员攻击力+2%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4058_pepe.png" alt="佩佩" loading="lazy"></td><td class="c-name">佩佩<small>近卫</small></td><td class="c-trait">&lt;进入休整期时&gt;获得1件“盟约之币”或“萨尔贡浓茶”，有小概率发现“黄沙罗盘”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4056_titi.png" alt="缇缇" loading="lazy"></td><td class="c-name">缇缇<small>医疗</small></td><td class="c-trait">&lt;战斗中&gt;每当范围内有敌人或干员进入沉睡或晕眩时，使已激活的【萨尔贡】【精准】层数+1（每场战斗至多24层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1026_gvial2.png" alt="百炼嘉维尔" loading="lazy"></td><td class="c-name">百炼嘉维尔<small>近卫</small></td><td class="c-trait">&lt;战斗中&gt;开启技能时，使已激活的【萨尔贡】层数+9</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_426_billro.png" alt="卡涅利安" loading="lazy"></td><td class="c-name">卡涅利安<small>术师</small></td><td class="c-trait">&lt;获得时&gt;获得1件“迅捷作战粮”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4148_philae.png" alt="菲莱" loading="lazy"></td><td class="c-name">菲莱<small>重装</small></td><td class="c-trait">&lt;战斗中&gt;开启技能时，使已激活的【萨尔贡】层数+6</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4054_malist.png" alt="至简" loading="lazy"></td><td class="c-name">至简<small>术师</small></td><td class="c-trait">购买价格为1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4139_papyrs.png" alt="莎草" loading="lazy"></td><td class="c-name">莎草<small>医疗</small></td><td class="c-trait">&lt;战斗中&gt;首次开启技能时，使已激活的【萨尔贡】层数+5</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_381_bubble.png" alt="泡泡" loading="lazy"></td><td class="c-name">泡泡<small>重装</small></td><td class="c-trait">【萨尔贡】【坚守】每叠加3层，本干员防御力+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_127_estell.png" alt="艾丝黛尔" loading="lazy"></td><td class="c-name">艾丝黛尔<small>近卫</small></td><td class="c-trait"><span class="lb lg">+2→+4层/获得</span>&lt;获得时&gt;自身所属盟约层数+2（无需激活盟约）</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="victoriaShip" style="--bond:#e0507e">
+  <h3><img class="bicon" src="/assets/bond/victoriaShip.png" alt="维多利亚">维多利亚<span class="th">激活 3 / 6</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：<b>带装备</b>的【维多利亚】伤害 ×<b>1.25</b>，每层再 +0.8%。没带装备的吃不到主体加成！</li><li>每叠满 <b>25 层</b>：白送 1 把带随机词条的「维式重锤」。</li><li><b>6 人</b>：每带 1 件装备攻击 <b>+50%</b>（进阶装备 +80%）。</li><li>一句话：<b>装备就是一切</b>——这个盟约把“散件给谁”变成主决策。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「大发明家」：装备驱动，25 层一把免费神器。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1019_siege2.png" alt="维娜·维多利亚" loading="lazy"></td><td class="c-name">维娜·维多利亚<small>近卫</small></td><td class="c-trait"><span class="lb lp">+3→+6层/回合</span>&lt;休整期结束时&gt;场上每有1名不同阶的【维多利亚】/【奇迹】干员使已激活的【维多利亚】层数+3/【奇迹】层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1020_reed2.png" alt="焰影苇草" loading="lazy"></td><td class="c-name">焰影苇草<small>医疗</small></td><td class="c-trait">【维多利亚】每叠加3层，本干员攻击速度+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1040_blaze2.png" alt="烛煌" loading="lazy"></td><td class="c-name">烛煌<small>术师</small></td><td class="c-trait"><span class="lb lg">+5→+10层/获得</span>&lt;获得时&gt;【炎】【维多利亚】层数+5（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4039_horn.png" alt="号角" loading="lazy"></td><td class="c-name">号角<small>重装</small></td><td class="c-trait">&lt;休整期结束时&gt;当前已激活且层数最多的盟约每有1名不同阶干员在场，层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_222_bpipe.png" alt="风笛" loading="lazy"></td><td class="c-name">风笛<small>先锋</small></td><td class="c-trait">&lt;战斗中&gt;前3次击倒敌人时，使已激活的【维多利亚】【远见】【不屈】层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4162_cathy.png" alt="凯瑟琳" loading="lazy"></td><td class="c-name">凯瑟琳<small>辅助</small></td><td class="c-trait">&lt;进入休整期时&gt;若当前为奇数回合，获得1件随机装备</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_388_mint.png" alt="薄绿" loading="lazy"></td><td class="c-name">薄绿<small>术师</small></td><td class="c-trait"><span class="lb lp">+2→+4层/回合</span>&lt;休整期结束时&gt;场上每有1名不同阶的【维多利亚】干员，使已激活的【维多利亚】层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4114_harold.png" alt="哈洛德" loading="lazy"></td><td class="c-name">哈洛德<small>医疗</small></td><td class="c-trait">攻击力和生命值+20%；核心盟约每叠加3层，本干员攻击力和生命值+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4040_rockr.png" alt="洛洛" loading="lazy"></td><td class="c-name">洛洛<small>术师</small></td><td class="c-trait">&lt;获得时&gt;随机制造1件洛洛的定制品</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_494_vendla.png" alt="刺玫" loading="lazy"></td><td class="c-name">刺玫<small>医疗</small></td><td class="c-trait"><span class="lb lp">+1→+2层/回合</span>&lt;休整期结束时&gt;使已激活的【维多利亚】层数+1</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="kjeragShip" style="--bond:#5fd3e8">
+  <h3><img class="bicon" src="/assets/bond/kjeragShip.png" alt="谢拉格">谢拉格<span class="th">激活 3 / 6</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：【谢拉格】伤害 ×1.25，对<b>寒冷/冻结</b>的敌人再 ×<b>(1.35 + 0.01×层)</b>。</li><li><b>6 人</b>：战场每 <b>25 秒</b>吹一阵寒风，把敌人冻住 <b>20 + 0.1×层</b> 秒。</li><li>一句话：<b>冰冻控场流</b>——自己给自己创造“打冰雕”的条件。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「冰霜/极地」：全场控制，冻住再打伤害加成。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1046_sbell2.png" alt="圣聆初雪" loading="lazy"></td><td class="c-name">圣聆初雪<small>术师</small></td><td class="c-trait">【谢拉格】【奥术】每叠加3层，本干员攻击力+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4116_blkkgt.png" alt="锏" loading="lazy"></td><td class="c-name">锏<small>近卫</small></td><td class="c-trait"><span class="lb lg">+8→+16层/获得</span>&lt;获得时&gt;自身所属的盟约层数+8
+&lt;部署时&gt;使自身已激活的盟约层数+8（至多24层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1045_svash2.png" alt="凛御银灰" loading="lazy"></td><td class="c-name">凛御银灰<small>先锋</small></td><td class="c-trait">&lt;战斗开始时&gt;使身前一格【谢拉格】干员获得特质“范围内1名敌人进入冻结时，有60%概率使已激活的【谢拉格】层数+1”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_206_gnosis.png" alt="灵知" loading="lazy"></td><td class="c-name">灵知<small>辅助</small></td><td class="c-trait"><span class="lb lg">+5→+10层/获得</span>&lt;获得时&gt;自身所属盟约层数+5（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_172_svrash.png" alt="银灰" loading="lazy"></td><td class="c-name">银灰<small>近卫</small></td><td class="c-trait">&lt;战斗中&gt;每当范围内1名敌人进入冻结时，有50%概率使已激活的【谢拉格】层数+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4211_snhunt.png" alt="雪猎" loading="lazy"></td><td class="c-name">雪猎<small>狙击</small></td><td class="c-trait"><span class="lb lg">+5→+10层/获得</span>&lt;获得时&gt;自身所属盟约层数+5（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_174_slbell.png" alt="初雪" loading="lazy"></td><td class="c-name">初雪<small>辅助</small></td><td class="c-trait">&lt;战斗中&gt;每当范围内1名敌人进入冻结时，有50%概率使已激活的【谢拉格】层数+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4013_kjera.png" alt="耶拉" loading="lazy"></td><td class="c-name">耶拉<small>术师</small></td><td class="c-trait">&lt;获得时&gt;获得1件“谢拉格不融冰”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4114_harold.png" alt="哈洛德" loading="lazy"></td><td class="c-name">哈洛德<small>医疗</small></td><td class="c-trait">攻击力和生命值+20%；核心盟约每叠加3层，本干员攻击力和生命值+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_199_yak.png" alt="角峰" loading="lazy"></td><td class="c-name">角峰<small>重装</small></td><td class="c-trait"><span class="lb lg">+2→+4层/获得</span>&lt;获得时&gt;自身所属盟约层数+2（无需激活盟约）</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="lateranoShip" style="--bond:#f0dc5a">
+  <h3><img class="bicon" src="/assets/bond/lateranoShip.png" alt="拉特兰">拉特兰<span class="th">激活 3 / 6</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：开技能时的弹药量 ×<b>(1.05 + 0.015×层)</b>（层越高子弹越多）。</li><li><b>6 人</b>：每打掉 1 发子弹，全体【拉特兰】攻击 <b>+4%</b>（至多 +200%）。</li><li>一句话：<b>机关枪</b>——弹药翻倍 + 越打越痛，层数就是弹鼓容量。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「神射手」：射不完的子弹，越射攻击越高。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4193_lemuen.png" alt="蕾缪安" loading="lazy"></td><td class="c-name">蕾缪安<small>狙击</small></td><td class="c-trait">&lt;战斗中&gt;自身每消耗10发子弹，若同一行有3名干员，使已激活的【拉特兰】【精准】层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_245_cello.png" alt="塑心" loading="lazy"></td><td class="c-name">塑心<small>辅助</small></td><td class="c-trait">&lt;战斗中&gt;开启技能时，同一行每有1名干员，当前已激活且层数最多的盟约层数+1（每场作战至多10层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1041_angel2.png" alt="新约能天使" loading="lazy"></td><td class="c-name">新约能天使<small>特种</small></td><td class="c-trait">&lt;获得时&gt;使下个休整期额外获得2资金</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1032_excu2.png" alt="圣约送葬人" loading="lazy"></td><td class="c-name">圣约送葬人<small>近卫</small></td><td class="c-trait">&lt;战斗中&gt;自身每消耗7发子弹，使已激活的【拉特兰】层数+7、【远见】层数+3（每场战斗分别至多触发7次）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4194_rmixer.png" alt="信仰搅拌机" loading="lazy"></td><td class="c-name">信仰搅拌机<small>重装</small></td><td class="c-trait">【拉特兰】【坚守】每叠加3层，本干员防御力+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_213_mostma.png" alt="莫斯提马" loading="lazy"></td><td class="c-name">莫斯提马<small>术师</small></td><td class="c-trait">&lt;战斗中&gt;自身周围4格的干员每消耗6发弹药，使已激活的【拉特兰】层数+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_103_angel.png" alt="能天使" loading="lazy"></td><td class="c-name">能天使<small>狙击</small></td><td class="c-trait">&lt;获得时&gt;使下个休整期额外获得1资金</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_332_archet.png" alt="空弦" loading="lazy"></td><td class="c-name">空弦<small>狙击</small></td><td class="c-trait">&lt;进入休整期时&gt;使自身及身前一格干员的已激活盟约分别各层数+3</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_279_excu.png" alt="送葬人" loading="lazy"></td><td class="c-name">送葬人<small>狙击</small></td><td class="c-trait">&lt;战斗中&gt;首次击倒敌人时，使已激活的【精准】【拉特兰】层数+3</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_498_inside.png" alt="隐现" loading="lazy"></td><td class="c-name">隐现<small>狙击</small></td><td class="c-trait">【拉特兰】每叠加5层，本干员攻击速度+1</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="egirShip" style="--bond:#4f8fde">
+  <h3><img class="bicon" src="/assets/bond/egirShip.png" alt="阿戈尔">阿戈尔<span class="th">激活 3 / 5</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：【阿戈尔】生命 <b>+35%</b> + 每层 +1%。开战时<b>吞噬身前一格的友军</b>：造成 5000 物伤、拿走它的攻击与阻挡数，并按<b>被吃者的等阶</b>给【阿戈尔】加层！</li><li><b>5 人</b>：前 3 个【阿戈尔】首次倒地<b>立刻复活</b>。</li><li>一句话：<b>献祭流</b>——喂低阶工具人换层数换属性，天生自带叠层引擎。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「食魂者/献祭流」：吃队友变强，还送 3 次复活。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1012_skadi2.png" alt="浊心斯卡蒂" loading="lazy"></td><td class="c-name">浊心斯卡蒂<small>辅助</small></td><td class="c-trait">【阿戈尔】每叠加10层，本干员每秒回复50生命，自然技力回复速度+0.15/秒</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4145_ulpia.png" alt="乌尔比安" loading="lazy"></td><td class="c-name">乌尔比安<small>近卫</small></td><td class="c-trait">【阿戈尔】每叠加2层，本干员攻击力+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1023_ghost2.png" alt="归溟幽灵鲨" loading="lazy"></td><td class="c-name">归溟幽灵鲨<small>特种</small></td><td class="c-trait">&lt;战斗中&gt;自身被击倒或替身与本体进行切换时，使已激活的【阿戈尔】层数+5、【不屈】层数+5</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_437_mizuki.png" alt="水月" loading="lazy"></td><td class="c-name">水月<small>特种</small></td><td class="c-trait">【阿戈尔】每叠加3层，本干员攻击力+1%</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_474_glady.png" alt="歌蕾蒂娅" loading="lazy"></td><td class="c-name">歌蕾蒂娅<small>特种</small></td><td class="c-trait">&lt;进入休整期时&gt;若同一行有3名干员，获得1个斯卡蒂、幽灵鲨或深巡</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_263_skadi.png" alt="斯卡蒂" loading="lazy"></td><td class="c-name">斯卡蒂<small>近卫</small></td><td class="c-trait">&lt;战斗中&gt;每击倒2名单位时，使已激活的【阿戈尔】【坚守】【突袭】层数+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4079_haini.png" alt="海霓" loading="lazy"></td><td class="c-name">海霓<small>辅助</small></td><td class="c-trait">&lt;战斗中&gt;首次击倒敌人或我方干员时，使已激活的【阿戈尔】【奥术】层数+3</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_143_ghost.png" alt="幽灵鲨" loading="lazy"></td><td class="c-name">幽灵鲨<small>近卫</small></td><td class="c-trait">&lt;战斗中&gt;自身被击倒时，使已激活的【阿戈尔】层数+3</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4137_udflow.png" alt="深巡" loading="lazy"></td><td class="c-name">深巡<small>重装</small></td><td class="c-trait">攻击海怪敌人时攻击力提升至150%</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="siracusaShip" style="--bond:#b16ae0">
+  <h3><img class="bicon" src="/assets/bond/siracusaShip.png" alt="叙拉古">叙拉古<span class="th">激活 3 / 6</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：部署后攻速 <b>+25 + 0.8×层</b>，持续 <b>32 + 0.4×层</b> 秒（层数同时喂攻速和时长）。</li><li><b>6 人</b>：部署后进入<b>隐匿</b>（同时长），隐匿中及脱离后 10 秒内攻击有 <b>3%</b> 概率造成 <b>5000 + 50×层</b> 真伤并<b>恐惧 3 秒</b>。</li><li>一句话：<b>开场狂暴的隐身刺客</b>——你那次 7 层，等于白送了整套爆发。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「刺客」：入场爆发 + 隐身，赌概率真伤带控制。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1038_whitw2.png" alt="荒芜拉普兰德" loading="lazy"></td><td class="c-name">荒芜拉普兰德<small>术师</small></td><td class="c-trait">&lt;战斗中&gt;击倒敌人时，使已激活的【叙拉古】层数+2
+将荒芜拉普兰德合成为精锐即可在战斗中使所有【叙拉古】干员获得该效果</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_358_lisa.png" alt="铃兰" loading="lazy"></td><td class="c-name">铃兰<small>辅助</small></td><td class="c-trait">&lt;进入休整期时&gt;触发身前一格的其他干员的“获得时”类效果</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_291_aglina.png" alt="安洁莉娜" loading="lazy"></td><td class="c-name">安洁莉娜<small>辅助</small></td><td class="c-trait"><span class="lb lp">+4→+8层/回合</span>&lt;休整期结束时&gt;本回合每刷新过1次，使已激活的【叙拉古】层数+4（每回合至多12层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_446_aroma.png" alt="阿罗玛" loading="lazy"></td><td class="c-name">阿罗玛<small>术师</small></td><td class="c-trait"><span class="lb lp">+2→+4层/回合</span>&lt;休整期结束时&gt;本回合每刷新过1次，使已激活的【叙拉古】【奥术】层数+2（至多6层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1028_texas2.png" alt="缄默德克萨斯" loading="lazy"></td><td class="c-name">缄默德克萨斯<small>特种</small></td><td class="c-trait">&lt;进入休整期时&gt;获得1次免费刷新</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4026_vulpis.png" alt="忍冬" loading="lazy"></td><td class="c-name">忍冬<small>先锋</small></td><td class="c-trait"><span class="lb lg">+6→+12层/获得</span>&lt;获得时&gt;自身所属盟约层数+6（无需激活盟约）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_427_vigil.png" alt="伺夜" loading="lazy"></td><td class="c-name">伺夜<small>先锋</small></td><td class="c-trait">&lt;战斗中&gt;造成的伤害变为弱点伤害（基于敌人的防御力和法术抗性变换物理和法术伤害），前3次击倒敌人时使已激活的【叙拉古】层数+2、【奇迹】层数+1</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_140_whitew.png" alt="拉普兰德" loading="lazy"></td><td class="c-name">拉普兰德<small>近卫</small></td><td class="c-trait">&lt;刷新时&gt;若为本回合首次主动刷新，使已激活的【叙拉古】层数+4，此干员在整备区时也有效</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_145_prove.png" alt="普罗旺斯" loading="lazy"></td><td class="c-name">普罗旺斯<small>狙击</small></td><td class="c-trait">&lt;获得时&gt;获得1次免费刷新</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_102_texas.png" alt="德克萨斯" loading="lazy"></td><td class="c-name">德克萨斯<small>先锋</small></td><td class="c-trait">&lt;售出时&gt;获得1次免费刷新</td></tr></tbody></table></div>
+</section>
+<section class="bond" id="kazimierzShip" style="--bond:#d8d2ba">
+  <h3><img class="bicon" src="/assets/bond/kazimierzShip.png" alt="卡西米尔">卡西米尔<span class="th">激活 3 / 6</span></h3>
+  <ul class="plain"><li>点亮 <b>3 人</b>：每有一次干员部署，【卡西米尔】攻击 <b>+20%</b> 直到战斗结束（上限 <b>50% + 1%×层</b>）。</li><li><b>6 人</b>：阻挡敌人时每 2 秒对周围造成 <b>120% 攻击</b>的真伤 + 0.1 秒眩晕；未阻挡时攻击附带 30% 攻击真伤。</li><li>一句话：<b>反甲骑士</b>——站得住就赢，层数抬高攻击上限。</li></ul>
+  <p class="tft"><b>金铲铲类比</b>　像「守护者/反击盾」：挡在前排，真伤反甲弹开人群。</p>
+  <div class="tbl-wrap"><table class="roster"><thead><tr><th>阶</th><th></th><th>干员</th><th>特质（→ 精锐）</th></tr></thead>
+  <tbody><tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_1014_nearl2.png" alt="耀骑士临光" loading="lazy"></td><td class="c-name">耀骑士临光<small>近卫</small></td><td class="c-trait">&lt;战斗开始时&gt;使自身和身前一格干员获得特质“【卡西米尔】每叠加3层，本干员再部署时间-1.5%，攻击速度+0.5”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="6 阶"><i></i><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4116_blkkgt.png" alt="锏" loading="lazy"></td><td class="c-name">锏<small>近卫</small></td><td class="c-trait"><span class="lb lg">+8→+16层/获得</span>&lt;获得时&gt;自身所属的盟约层数+8
+&lt;部署时&gt;使自身已激活的盟约层数+8（至多24层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_4064_mlynar.png" alt="玛恩纳" loading="lazy"></td><td class="c-name">玛恩纳<small>近卫</small></td><td class="c-trait">【卡西米尔】每叠加5层，本干员部署后100秒内基础攻击力+10、基础生命值+50</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_420_flamtl.png" alt="焰尾" loading="lazy"></td><td class="c-name">焰尾<small>先锋</small></td><td class="c-trait">&lt;获得时&gt;获得1个野鬃或灰毫，小概率获得远牙</td></tr>
+<tr><td class="c-tier"><span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_430_fartth.png" alt="远牙" loading="lazy"></td><td class="c-name">远牙<small>狙击</small></td><td class="c-trait">&lt;战斗开始时&gt;使同一行最右边一名干员获得特质“&lt;部署时&gt;使已激活的【卡西米尔】【精准】层数+4（每场作战至多24层）”</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_423_blemsh.png" alt="瑕光" loading="lazy"></td><td class="c-name">瑕光<small>重装</small></td><td class="c-trait">&lt;部署时&gt;使自身已激活的盟约层数+4（每场作战至多12层）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="3 阶"><i></i><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_126_shotst.png" alt="流星" loading="lazy"></td><td class="c-name">流星<small>狙击</small></td><td class="c-trait">&lt;战斗中&gt;攻击力和生命值+25%，造成的伤害变为弱点伤害（基于敌人的防御力和法术抗性变换物理和法术伤害）</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_237_gravel.png" alt="砾" loading="lazy"></td><td class="c-name">砾<small>特种</small></td><td class="c-trait">&lt;部署时&gt;使已激活的【卡西米尔】层数+1
+&lt;被击倒时&gt;使已激活的【不屈】层数+2</td></tr>
+<tr><td class="c-tier"><span class="dots" title="2 阶"><i></i><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_431_ashlok.png" alt="灰毫" loading="lazy"></td><td class="c-name">灰毫<small>重装</small></td><td class="c-trait">&lt;获得时&gt;当前激活且层数最多的盟约层数+3</td></tr>
+<tr><td class="c-tier"><span class="dots" title="1 阶"><i></i></span></td><td class="c-ava"><img class="ava" src="/assets/char/avatar/char_496_wildmn.png" alt="野鬃" loading="lazy"></td><td class="c-name">野鬃<small>先锋</small></td><td class="c-trait"><span class="lb lg">+2→+4层/获得</span>&lt;获得时&gt;自身所属盟约层数+2（无需激活盟约）</td></tr></tbody></table></div>
+</section>
+
+  <h3 style="margin-top:34px">15 个小羁绊速查表</h3>
+  <p class="lead">小羁绊大多 2 人就点亮、跟着主力盟约顺手拿；「含整备区」的三个（远见/奇迹/投资人）连板凳都算人头。</p>
+  <div class="tbl-wrap"><table class="minor"><thead><tr><th>盟约</th><th>怎么点亮</th><th>效果（随层数变强）</th><th>关键层数</th></tr></thead><tbody><tr><td class="m-name"><img class="bicon" src="/assets/bond/preciShip.png" alt="精准">精准</td><td>场上 2/3 名不同【精准】</td><td>攻击 +10% + 0.012×层；3 人后扩散到所有远程并无视 30% 双抗</td><td class="m-note">—</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/swiftShip.png" alt="迅捷">迅捷</td><td>场上 2 名不同【迅捷】</td><td>技能结束 20% + 0.35%/层 概率回 12 技力</td><td class="m-note">40 层：全队同样概率回 15</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/skillfulShip.png" alt="灵巧">灵巧</td><td>场上 2 名不同【灵巧】</td><td>自身及周围 4 格攻速 +10 + 1×层</td><td class="m-note">40 层：范围扩到 8 格</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/arcaneShip.png" alt="奥术">奥术</td><td>场上 2/3 名不同【奥术】</td><td>法术易伤 ×1.20 + 0.01×层，持续 3s</td><td class="m-note">3 人：对半血以下 ×1.4 倍率</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/steadShip.png" alt="坚守">坚守</td><td>场上 2/3 名不同【坚守】</td><td>全体生命 +25% + 1.2%/层；3 人后【坚守】替全队分摊 40% 伤害并反噬</td><td class="m-note">—</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/deputShip.png" alt="助力">助力</td><td>场上 2/3 名【助力】</td><td>全体防御 +15% + 1.2%/层，再部署 −30%；休整期结束给所有已激活盟约 +2 层（3 人改 +4）</td><td class="m-note">唯一“自动涨层”盟约</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/visiShip.png" alt="远见">远见</td><td>场上+整备区 2 名【远见】</td><td>每 10 层 +2 资金</td><td class="m-note">80 层：远见干员 −1 价；150 层：全场 −1 价</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/miraShip.png" alt="奇迹">奇迹</td><td>场上+整备区 2 名【奇迹】</td><td>刷新 18% + 0.3%/层 概率下次免费</td><td class="m-note">每 100 层 +20 资金</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/investShip.png" alt="投资人">投资人</td><td>场上+整备区 3 名【投资人】</td><td>所有“获得时”特质触发 2 次</td><td class="m-note">100 层：改 3 次</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/raidShip.png" alt="突袭">突袭</td><td>场上 2 名不同【突袭】</td><td>10s 没仗打就空降到敌人身边，期间攻击/生命 +25% + 1%/层</td><td class="m-note">50 层：全队攻速 +50</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/indomShip.png" alt="不屈">不屈</td><td>场上 2/3 名不同【不屈】</td><td>地面干员阵亡 18% + 0.4%/层 概率原地复活</td><td class="m-note">3 人：阵亡全队 +5 技力</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/maniShip.png" alt="调和">调和</td><td>场上 1 名【调和】</td><td>核心盟约人数 +1（算人头），自身吃所有已激活核心盟约效果</td><td class="m-note">缪尔赛思专属</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/emptyShip.png" alt="协防干员">协防干员</td><td>场上 2 名不同【协防干员】</td><td>全队受伤 −20%，协防干员伤害 ×1.2（精锐 ×1.4）</td><td class="m-note">无盟约干员的默认去处</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/soloShip.png" alt="独行">独行</td><td>场上恰好 1 名【独行】</td><td>攻击/生命 +60%，初始技力 +15；上第二个就失效</td><td class="m-note">单挂最强但吃格子上限</td></tr><tr><td class="m-name"><img class="bicon" src="/assets/bond/suntShip.png" alt="绝技">绝技</td><td>场上 2/5 名精锐（任意干员）</td><td>精锐攻击 +30%</td><td class="m-note">5 精锐：精锐技力消耗 −30%</td></tr></tbody></table></div>
+  <div class="note"><span class="t">独行 & 协防 & 调和 是三个特殊件</span>
+    <b>独行</b>：场上恰好 1 个独行干员时它 +60% 攻/+60% 血——单挂神器，上第二个立刻断电。<b>协防干员</b>：没有盟约的干员的默认去处（2 人点亮全队减伤 20%）。<b>调和</b>（缪尔赛思专属）：让所有核心盟约<b>人数 +1</b>——3 缺 1 时的救命稻草。</div>
+</section>
+
+<!-- ============ 2 经济 ============ -->
+<section id="s2">
+  <h2><span class="no">§2</span>升级还是抓人：把钱花光的学问</h2>
+  <p class="lead">没有利息的世界里，「攒钱」是负收益。决策只剩两个：这 12 金花在<b>等级</b>还是<b>人头</b>。</p>
+  <svg viewBox="0 0 640 150" class="income" role="img" aria-label="每回合收入"><rect x="29.0" y="97.3" width="36.0" height="34.7" rx="2" class=""/><text x="47.0" y="92.3" class="v">4</text><text x="47.0" y="146" class="r">1</text><rect x="71.0" y="88.7" width="36.0" height="43.3" rx="2" class=""/><text x="89.0" y="83.7" class="v">5</text><text x="89.0" y="146" class="r">2</text><rect x="113.0" y="80.0" width="36.0" height="52.0" rx="2" class=""/><text x="131.0" y="75.0" class="v">6</text><text x="131.0" y="146" class="r">3</text><rect x="155.0" y="71.3" width="36.0" height="60.7" rx="2" class=""/><text x="173.0" y="66.3" class="v">7</text><text x="173.0" y="146" class="r">4</text><rect x="197.0" y="62.7" width="36.0" height="69.3" rx="2" class=""/><text x="215.0" y="57.7" class="v">8</text><text x="215.0" y="146" class="r">5</text><rect x="239.0" y="54.0" width="36.0" height="78.0" rx="2" class=""/><text x="257.0" y="49.0" class="v">9</text><text x="257.0" y="146" class="r">6</text><rect x="281.0" y="45.3" width="36.0" height="86.7" rx="2" class=""/><text x="299.0" y="40.3" class="v">10</text><text x="299.0" y="146" class="r">7</text><rect x="323.0" y="36.7" width="36.0" height="95.3" rx="2" class=""/><text x="341.0" y="31.7" class="v">11</text><text x="341.0" y="146" class="r">8</text><rect x="365.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="383.0" y="23.0" class="v">12</text><text x="383.0" y="146" class="r">9</text><rect x="407.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="425.0" y="23.0" class="v">12</text><text x="425.0" y="146" class="r">10</text><rect x="449.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="467.0" y="23.0" class="v">12</text><text x="467.0" y="146" class="r">11</text><rect x="491.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="509.0" y="23.0" class="v">12</text><text x="509.0" y="146" class="r">12</text><rect x="533.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="551.0" y="23.0" class="v">12</text><text x="551.0" y="146" class="r">13</text><rect x="575.0" y="28.0" width="36.0" height="104.0" rx="2" class="cap"/><text x="593.0" y="23.0" class="v">12</text><text x="593.0" y="146" class="r">14</text></svg>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>项目</th><th>规则</th><th>金铲铲对照</th></tr></thead>
+    <tbody>
+      <tr><td>每回合收入</td><td><b>3 + 回合数</b>，9 回合起固定 12 金</td><td>≈ 没有利息没有连胜的基础收入</td></tr>
+      <tr><td>余额</td><td><b>开战清零</b>（只有「坎诺特·利滚利」可继承 + 满 5 金补 1 金利息）</td><td>⇦ 最大的思维陷阱：50 金吃利息在这里不存在</td></tr>
+      <tr><td>买人</td><td>1 阶 2 金 · 2–4 阶 3 金 · 5–6 阶 4 金；卖出恒 1 金</td><td>≈ 一费 1 金的放大版，<b>卖人巨亏</b>，买前想清楚</td></tr>
+      <tr><td>刷新</td><td>1 金一次；<b>冻结免费</b>，但主动刷新会连冻结位一起重掷；开战时未冻结的格子清空</td><td>D 牌 2 金 → 这里 1 金，刷得更狠也不心疼</td></tr>
+      <tr><td>升级调度中心</td><td>险境以上基础价 5/8/11/12/13 金，<b>每过一回合自动 −1（最低 0）</b>，升级后按新等级重置；满级 6</td><td>⇦ 升级像“挂着的折扣”——不急的话等一回合更便宜；但等级 = 商店能刷到的最高阶 + 商店格（3→4→5 格）</td></tr>
+      <tr><td>合成</td><td>3 个同名 → 1 个精锐 + <b>0 金三选一</b>（高一阶，当回合有效）</td><td>⇦ 三星奖励 = 白送一次高阶 D 牌</td></tr>
+      <tr><td>卡池</td><td>全队共享：1 阶 12 份 … 6 阶只有 5 份</td><td>⇦ 和金铲铲公共池一样，联机会互抢（见 §6）</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><span class="t">节奏参考（数据 + 社区共识，2026-04 攻略口径）</span>
+    <b>合格曲线</b>（本仓库 AI 用的基准）：2 本≈第 3 回合 · 3 本≈第 5 回合 · 4 本≈第 7 回合 · 5 本≈第 10 回合 · 6 本≈第 12 回合。<br>
+    <b>社区两派</b>：「速四」（第 5 回合前后抢 4 本，激进，会被说“祸害队友”）vs「打钱 / D 牌」（按部就班，等升级价自动 −1 再升）。阵容决定派系：<b>靠 3/4 阶成型的早升</b>（拉特兰攻略原话：「四回合升三本，找空弦……空弦升级后无脑升本」）；<b>靠发牌器的可以慢</b>（哈洛德/梓兰这类白送干员的策略）。<br>
+    <b>6 阶核心必须 6 本</b>——维娜、锏、圣聆初雪、浊心斯卡蒂全卡在等级门槛上。<br>
+    <b>基本功</b>：想要的卡没钱买 → <b>冻结</b>（免费）而不是硬刷；每回合结账前把最后一金花掉——刷新也是花。</div>
+</section>
+
+<!-- ============ 3 BP 与前期过渡 ============ -->
+<section id="s3">
+  <h2><span class="no">§3</span>开局 BP 与前期过渡</h2>
+  <p class="lead">BP 阶段就决定了你这局的「户口」：能玩什么、不能玩什么。</p>
+  <div class="note warn"><span class="t">禁用规则（险境/绝境/终极）</span>
+    开局抽<b>3 个大羁绊 + 4 个小羁绊</b>进禁用池——禁的是「盟约」不是干员：一个干员只有当它的<b>所有</b>盟约都被禁时才不会出现。所以禁 3 个大羁绊后，剩下 5 个大羁绊里挑一个当主线；标准模拟更宽松（禁 1 小羁绊，但本来就有 10 个盟约不开放）。</div>
+  <div class="note"><span class="t">选策略 = 选小小英雄</span>
+    全员随机顺序轮选（可跳过 1 次、可重复），超时默认华法琳。<b>先看禁了什么、再选策略</b>——策略要和主线咬合：玩萨尔贡可以拿佩佩（升级送萨尔贡特殊刷新），玩卡西米尔拿玛恩纳（买卡西米尔干员返钱），玩阿戈尔拿克莱门莎（阿戈尔倒下按等阶补层）。§7 有全表。</div>
+  <div class="note gold"><span class="t">前期过渡五原则（社区共识 + 数据）</span>
+    ① <b>第 1–2 回合买特质</b>：1 阶 2 金的叠层手（角峰/艾丝黛尔/野鬃 +2→+4 层）不需要激活盟约也在攒层——层数永久，买了就是白赚；② <b>第 3 回合定主线</b>：看禁用 + 策略 + 商店给的面子，锁定 1 个大羁绊。社区原话：「玩维多利亚的优点是一般没人跟你抢。萨尔贡、拉特兰、谢拉格，可劲抢吧」——<b>联机先和队友分系</b>；③ <b>敌人预览决定留牌</b>：下回合有飞行单位就留对空（近地悬浮也算空中）；④ <b>别多抓两张“顺手的高阶卡”</b>——挤手牌也挤公共池（有玩家复盘自己一直输的原因就是这个）；⑤ 两回合没看到方向的盟约果断放弃：14 回合的局没有「后期再转」的空间。</div>
+</section>
+
+<!-- ============ 4 中期核心 ============ -->
+<section id="s4">
+  <h2><span class="no">§4</span>中期核心干员（3–5 阶，第 6–12 回合）</h2>
+  <p class="lead">中期围绕谁转。3 阶初始=精2 Lv.1，精锐=精2 Lv.60；<b>6 阶核心要 6 本才刷得出</b>，所以中期真正的主力都是 3–5 阶。金色「+N层」标签 = 该干员是这台盟约的叠层引擎。</p>
+  <h4 style="--bond:#ff5a3c"><img class="bicon" src="/assets/bond/yanShip.png" alt="炎">炎</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_136_hsguma.png" alt="星熊"><div><b>星熊</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>获得时 +8/+16 层——全游戏顶级叠层手</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4196_reckpr.png" alt="录武官"><div><b>录武官</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>获得时 炎 +6 / 奇迹 +3（精锐翻倍）</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_2015_dusk.png" alt="夕"><div><b>夕</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>每获得 1 名干员，已激活炎/奥术 +2/+4</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_1040_blaze2.png" alt="烛煌"><div><b>烛煌</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>获得时 炎+维 各 +5/+10</small></div></div></div>
+<h4 style="--bond:#e8b13c"><img class="bicon" src="/assets/bond/sargonShip.png" alt="萨尔贡">萨尔贡</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_4148_philae.png" alt="菲莱"><div><b>菲莱</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>开技能 +6/+12 层</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_1026_gvial2.png" alt="百炼嘉维尔"><div><b>百炼嘉维尔</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>开技能 +9/+18 层</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4056_titi.png" alt="缇缇"><div><b>缇缇</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>敌人沉睡/晕眩时 +1/+2（每场至多 24/48）</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4054_malist.png" alt="至简"><div><b>至简</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>售价 1 金的全游戏最便宜过渡卡</small></div></div></div>
+<h4 style="--bond:#e0507e"><img class="bicon" src="/assets/bond/victoriaShip.png" alt="维多利亚">维多利亚</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_388_mint.png" alt="薄绿"><div><b>薄绿</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>休整期结束：场上每 1 名不同阶维多利亚 +2/+4——「大变维」的钥匙</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_222_bpipe.png" alt="风笛"><div><b>风笛</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>前 3 次击杀给维/远/不屈各 +2/+4</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4162_cathy.png" alt="凯瑟琳"><div><b>凯瑟琳</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>奇数回合送随机装备</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4039_horn.png" alt="号角"><div><b>号角</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>按不同阶人数给盟约 +2/+4</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_1040_blaze2.png" alt="烛煌"><div><b>烛煌</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>获得时 炎+维 各 +5/+10</small></div></div></div>
+<h4 style="--bond:#5fd3e8"><img class="bicon" src="/assets/bond/kjeragShip.png" alt="谢拉格">谢拉格</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_4211_snhunt.png" alt="雪猎"><div><b>雪猎</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>获得时 +5/+10 层</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_174_slbell.png" alt="初雪"><div><b>初雪</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>敌人冻结时 50%/60% 概率 +1/+2</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4013_kjera.png" alt="耶拉"><div><b>耶拉</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>获得时送「谢拉格不融冰」装备</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_206_gnosis.png" alt="灵知"><div><b>灵知</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>获得时 +5/+10 层</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_1045_svash2.png" alt="凛御银灰"><div><b>凛御银灰</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>给身前的谢拉格干员挂冻结叠层特质</small></div></div></div>
+<h4 style="--bond:#f0dc5a"><img class="bicon" src="/assets/bond/lateranoShip.png" alt="拉特兰">拉特兰</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_332_archet.png" alt="空弦"><div><b>空弦</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>进入休整期：自身及身前一格的已激活盟约 +3/+6 层</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_103_angel.png" alt="能天使"><div><b>能天使</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>获得时：下个休整期 +1/+2 资金</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_1032_excu2.png" alt="圣约送葬人"><div><b>圣约送葬人</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>每耗 7 发子弹：拉特兰 +7 / 远见 +3（每场 7 次）——阵容上限</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4194_rmixer.png" alt="信仰搅拌机"><div><b>信仰搅拌机</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>随层数加防的坦位，开“双护卫”的骨架</small></div></div></div>
+<h4 style="--bond:#4f8fde"><img class="bicon" src="/assets/bond/egirShip.png" alt="阿戈尔">阿戈尔</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_263_skadi.png" alt="斯卡蒂"><div><b>斯卡蒂</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>每击倒 2 名敌人，阿戈尔/坚守/突袭 +1/+2</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_474_glady.png" alt="歌蕾蒂娅"><div><b>歌蕾蒂娅</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>同一行 3 人时白送阿戈尔干员——补人机器</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4145_ulpia.png" alt="乌尔比安"><div><b>乌尔比安</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>阿戈尔每 2 层攻击 +1%——层数之王</small></div></div></div>
+<h4 style="--bond:#b16ae0"><img class="bicon" src="/assets/bond/siracusaShip.png" alt="叙拉古">叙拉古</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_140_whitew.png" alt="拉普兰德"><div><b>拉普兰德</b> <span class="dots" title="2 阶"><i></i><i></i></span><small>每回合首次刷新 +4/+8（整备区也有效）</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_4026_vulpis.png" alt="忍冬"><div><b>忍冬</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>获得时 +6/+12 层</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_446_aroma.png" alt="阿罗玛"><div><b>阿罗玛</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>每刷新 1 次 +2/+4（至多 6/12）</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_358_lisa.png" alt="铃兰"><div><b>铃兰</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>每刷新 +4/+8（至多 12/24）——「刷新流」核心</small></div></div></div>
+<h4 style="--bond:#d8d2ba"><img class="bicon" src="/assets/bond/kazimierzShip.png" alt="卡西米尔">卡西米尔</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_423_blemsh.png" alt="瑕光"><div><b>瑕光</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>部署时自身盟约 +4/+8（每场至多 12/24）</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_126_shotst.png" alt="流星"><div><b>流星</b> <span class="dots" title="3 阶"><i></i><i></i><i></i></span><small>自身 +25%/50% 攻血 + 弱点伤害</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_420_flamtl.png" alt="焰尾"><div><b>焰尾</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>获得时白送野鬃/灰毫</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_430_fartth.png" alt="远牙"><div><b>远牙</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>给同行最右的干员挂「部署时 +4/+8」</small></div></div></div>
+<h4 class="all">跨盟约万金油</h4><div class="cores"><div class="core"><img class="ava" src="/assets/char/avatar/char_4087_ines.png" alt="伊内丝"><div><b>伊内丝</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>休整期结束 +5/+10 层（远见/突袭）——万金油</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_128_plosis.png" alt="白面鸮"><div><b>白面鸮</b> <span class="dots" title="4 阶"><i></i><i></i><i></i><i></i></span><small>复制身前一格的「进入休整期时」特质</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_202_demkni.png" alt="塞雷娅"><div><b>塞雷娅</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>复制「休整期结束时」特质</small></div></div><div class="core"><img class="ava" src="/assets/char/avatar/char_341_sntlla.png" alt="寒檀"><div><b>寒檀</b> <span class="dots" title="5 阶"><i></i><i></i><i></i><i></i><i></i></span><small>进/出休整期各给远见 +4/+8</small></div></div></div>
+  <div class="note"><span class="t">三条老玩家忠告（社区评论原话改写）</span>
+    「55 回合（有圣约送葬人）和没有的游戏体验，天差地别」——核心卡决定阵容上限；「前期在 3 本逛两圈找不到薄绿就已经很影响节奏了」——维多利亚的钥匙卡要主动找；借不到/刷不到核心时，<b>白手凑 2 人小盟约过渡</b>是正经预案，不是丢人。</div>
+</section>
+
+<!-- ============ 5 运营思路 ============ -->
+<section id="s5">
+  <h2><span class="no">§5</span>各大羁绊运营思路</h2>
+  <p class="lead">社区打法共识（B 站攻略 + 评论，2026-03/04 口径）；有争议的地方注明两派。</p>
+  <div class="tbl-wrap"><table>
+    <thead><tr><th>盟约</th><th>社区定位</th><th>代表打法</th></tr></thead>
+    <tbody>
+      <tr><td><b style="color:var(--cyan)">拉特兰</b></td><td>后期滚雪球；缺奶缺生存</td><td>主叠精准，<b>四回合升三本找空弦</b>；空弦精锐后无脑升本；终阵「六拉特兰 + 空弦开精准」，一百多层拉特兰 + 一百多层精准。<b>圣约送葬人决定上限</b>；怕没元素奶的硬仗</td></tr>
+      <tr><td><b style="color:var(--cyan)">萨尔贡</b></td><td>开技能流；抢手</td><td>莎草/菲莱/百炼嘉维尔三个「开技能=叠层」引擎 + 缇缇控制叠层；转起来全队攻速拉满</td></tr>
+      <tr><td><b style="color:var(--cyan)">谢拉格</b></td><td>冻结控制 + 真伤倍率；抢手</td><td>初雪/银灰/凛御银灰冻结叠层；6 人寒风冻场后打「冰雕伤害」；耶拉白送不融冰</td></tr>
+      <tr><td><b style="color:var(--cyan)">维多利亚</b></td><td><b>争议最大</b></td><td>「本家」派：哈洛德发牌、8 回合六维、10 回合 130+ 层、不胡也有 400 层；「大变维」派：变形者策略 + 变形同构体转职，被评「基本没有可挑剔的地方」。反方：「离了大变就混一整局」。3/27 改版后口碑回升</td></tr>
+      <tr><td><b style="color:var(--cyan)">阿戈尔</b></td><td>吞噬站位流</td><td>运营核心是<b>站位</b>：把高阶干员喂给身前的阿戈尔——被吃者等阶=层数还白拿属性；5 人前三条命；乌尔比安按层加攻是层王</td></tr>
+      <tr><td><b style="color:var(--cyan)">叙拉古</b></td><td>刷新/隐匿速攻</td><td>拉普兰德/阿罗玛/铃兰/安洁莉娜「刷新即叠层」；6 人隐匿 + 概率真伤恐惧。争议：叠得快，但吃不到「大变/昆图斯」两大轮椅分队</td></tr>
+      <tr><td><b style="color:var(--cyan)">卡西米尔</b></td><td>部署次数流</td><td>焰尾白送野鬃/灰毫、瑕光部署叠层、6 人阻挡真伤 AOE；玛恩纳每 5 层 +10 基础攻。注意：盟约被禁时玛恩纳策略直接白板</td></tr>
+      <tr><td><b style="color:var(--cyan)">炎</b></td><td>光环 + 召唤</td><td>全队攻击光环随层涨；6 人炎佑追着喷火（灼燃+元素脆弱）；「余」策略（第 8 回合单盟约 +36 层）和炎是天配</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note gold"><span class="t">没抢到核心盟约？社区答案：「灵奥精」</span>
+    灵巧 + 奥术 + 精准三件套，全期都强：前期开「奥精」助叠 → 中期找空弦/断崖 → 后期找溯光星源 → 终阵 3 精准 3 奥术 2 灵巧，靠速狙当终端。3 精准 = <b>全队高台吃攻击加成 + 无视 30% 双抗</b>。唯一禁区：敌人带「物理折射」的回合别玩物理系。</div>
+  <div class="note"><span class="t">装备与策略的三个运营支点</span>
+    <b>变形同构体</b>（变形者策略每 5 回合送/缪尔赛思获得时送）：与特定装备同带 = 视为该盟约成员——「大变」流本体。<b>博士投影</b>：直接把任意干员精锐化。<b>突变细胞</b>（昆图斯策略）：战斗结束后携带者升一阶、可循环——与「大变」并称最难输的两条线。</div>
+</section>
+
+<!-- ============ 6 联机 ============ -->
+<section id="s6">
+  <h2><span class="no">§6</span>联机不是单人的加法</h2>
+  <div class="vs">
+    <div class="vsc"><div class="hd"><span class="n">A</span><span class="q">卡池是全队共享的</span></div>
+      <div class="cols"><div class="side ark">1 阶 12 份……6 阶 5 份，<b>四个人从同一个池子里抽</b>。两个队友同玩叙拉古 = 互相卡死。<b>BP 阶段就分好盟约</b>，禁用也照着队友的主线避让。</div></div></div>
+    <div class="vsc"><div class="hd"><span class="n">B</span><span class="q">联防：完美作战才能救人</span></div>
+      <div class="cols"><div class="side ark">己方<b>无漏怪（完美作战）</b>打完后，可以去帮场上吃紧的队友守线（带 2 名干员过去），<b>联防期间不叠层</b>。所以「帮人」和「发育」是真取舍。</div></div></div>
+    <div class="vsc"><div class="hd"><span class="n">C</span><span class="q">最终攻势：一起打 Boss</span></div>
+      <div class="cols"><div class="side ark">14 回合后两两一组进同一战场，<b>全队共享 Boss 血条</b>（多人模式血量按四份算）。输出头衔「卫戍之星」就看这段。</div></div></div>
+    <div class="vsc"><div class="hd"><span class="n">D</span><span class="q">隐秘核心：层数够才有资格</span></div>
+      <div class="cols"><div class="side ark">险境以上、14 回合全队<b>激活盟约层数总和 &gt; 1200</b>（单人 &gt; 350）且血量总和 &gt; 1，解锁隐藏 Boss 局。<b>叠层狂魔的毕业考。</b></div></div></div>
+  </div>
+</section>
+
+<!-- ============ 7 小小英雄 ============ -->
+<section id="s7">
+  <h2><span class="no">§7</span>小小英雄（官方叫「策略」）推荐</h2>
+  <p class="lead">40 个策略按血量排；血量越高越能输，效果越强越吃理解。「小小英雄」是咱金铲铲的黑话，官方叫策略/分队。</p>
+  <div class="note gold"><span class="t">你实测的两张，机制上确实是新手双雄</span>
+    <b>歌利亚 45 血</b>：全场最肉，效果就是“多条命”——每回合最多扣 10，容错拉满（注意：最终攻势全员血条合并，高血优势会稀释）。<b>阿米娅 25 血</b>：<b>激活 3/4/5+ 种盟约时全体 +20/30/40% 攻血</b>——正好奖励你「爱凑羁绊」的直觉，是唯一鼓励多线开花的策略。</div>
+  <div class="note"><span class="t">按需求选（数据 + 社区共识）</span>
+    要<b>简单粗暴</b>：歌利亚。<br>
+    要<b>钱多</b>：坎诺特（唯一能存钱的策略：余额继承 + 满 5 金每回合 +1）、小贾斯汀（储蓄罐）、绮良（每花 20 送干员）。<br>
+    要<b>成型阵容</b>：「变形者集群」（大变流本体）+ 昆图斯（突变细胞）——社区并称<b>最难输的两条轮椅线</b>；哈洛德/梓兰（发牌器，道中稳）。<br>
+    要<b>团队价值</b>：阿米娅（多盟约全体加成）、伊奥莱塔（精锐流）、Touch（全队多个预备医疗）。<br>
+    <b>新手避雷</b>：绑死单一盟约的策略（佩佩/休露丝/贾维/玛恩纳/潘格尼尼/克莱门莎）——该盟约被禁或被队友抢走时直接白板，官方自己都标注「体验可能不完整」。</div>
+  <div class="note"><span class="t">开局就解锁的 13 个（不用刷进度）</span>
+    华法琳 · 阿米娅 · 杜遥夜 · 歌利亚 · 梓兰 · 凯瑟琳 · 陈 · Pith · 坎诺特 · 巫恋 · 伊奥莱塔·罗素 · 松桐 · 铃兰。其余按通关次数 / 6 名同盟约结算 / 累计 200 层解锁——不解锁也不影响打标准。</div>
+  <details><summary>全部 40 个策略（按血量降序）<small>　点开看效果全文</small></summary>
+    <div class="body tbl-wrap"><table class="bands">
+      <thead><tr><th>血量</th><th>策略</th><th>效果名</th><th>效果</th></tr></thead>
+      <tbody><tr><td class="hp">45</td><td>歌利亚</td><td>坚不可摧</td><td>【坚不可摧】初始目标生命值为45点</td></tr>
+<tr><td class="hp">31</td><td>昆图斯</td><td>不稳定要素</td><td>【不稳定要素】第3回合获得1件特殊装备&lt;突变细胞&gt;
+&lt;突变细胞&gt;：战斗结束后使装备者变为高一阶的随机干员（最高6阶）</td></tr>
+<tr><td class="hp">30</td><td>梓兰</td><td>猎头顾问</td><td>【猎头顾问】每次主动刷新均变为特殊刷新：必定刷新2名同名干员，并冻结其中一名；第10回合获得1个&lt;寻呼模块&gt;
+&lt;寻呼模块&gt;：装备时销毁，立即在调度中心中刷新三名与该干员盟约相同的干员，免费获得其中一名!（不超过当前调度中心等级）</td></tr>
+<tr><td class="hp">30</td><td>杜宾</td><td>加练！</td><td>【加练！】每2个回合获得1个特殊法术&lt;教鞭&gt;
+&lt;教鞭&gt;：使用后为下场战斗添加额外敌人，若自身战斗完美作战可获得资金</td></tr>
+<tr><td class="hp">29</td><td>杜遥夜</td><td>广交豪杰</td><td>【广交豪杰】每回合前2次主动刷新为特殊刷新：优先刷新出1名&lt;炎&gt;干员
+在&lt;炎&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">29</td><td>“变形者集群”</td><td>变形同构</td><td>【变形同构】每5回合获得1件特殊装备&lt;变形同构体&gt;
+&lt;变形同构体&gt;：与特定装备一同装备时装备者将视为特定盟约成员</td></tr>
+<tr><td class="hp">29</td><td>鸭爵</td><td>“神秘顾客”</td><td>【“神秘顾客”】从第5回合起，你和队友遭遇的部分敌人可能会替换为&lt;鸭爵&gt;&lt;高普尼克&gt;&lt;流泪小子&gt;&lt;圆仔&gt;，击倒这些敌人者获得1资金奖励（包括联防阶段）</td></tr>
+<tr><td class="hp">29</td><td>伊奥莱塔·罗素</td><td>统御号令</td><td>【统御号令】战斗开始时，场上每有一个精锐干员，精锐干员的攻击力，生命值+10%</td></tr>
+<tr><td class="hp">28</td><td>华法琳</td><td>重点监护</td><td>【重点监护】开始作战时，使场上每个不同等阶的1个随机我方干员的所属盟约层数+2</td></tr>
+<tr><td class="hp">28</td><td>桑葚</td><td>药枚实验</td><td>【药枚实验】战斗开始时，使最右边的所有我方单位获得效果：每次攻击时有25%的概率获得1层护盾（最多1层）</td></tr>
+<tr><td class="hp">28</td><td>马克维茨</td><td>商业包装</td><td>【商业包装】初始获得1个&lt;商业包装方案&gt;
+&lt;商业包装方案&gt;：每出售8名任意干员后，获得1名装备者的同盟约普通干员</td></tr>
+<tr><td class="hp">28</td><td>夕</td><td>墨色真颜</td><td>【墨色真颜】若你的场上存在同名干员，这些干员攻击力+30%
+【幻画为真】第1回合获得1个特殊法术&lt;画卷&gt;
+&lt;画卷&gt;：使用后可以复制该法术范围内的1名干员（包括精锐状态和携带的装备）</td></tr>
+<tr><td class="hp">28</td><td>缪尔赛思</td><td>至纯凝结</td><td>【至纯凝结】在第1回合开始时获得一个进阶&lt;博士投影&gt;
+进阶&lt;博士投影&gt;：任意干员可装备，立即使该干员晋升为精锐干员</td></tr>
+<tr><td class="hp">28</td><td>Touch</td><td>外勤医疗</td><td>【外勤医疗】所有玩家场地上出现一名&lt;预备干员-医疗&gt;；战斗开始时，若场上至少有两名精锐干员，则替换为&lt;Touch&gt;</td></tr>
+<tr><td class="hp">27</td><td>埃芒加德</td><td>命结之秘</td><td>【命结之秘】战斗中前3个被击倒的干员立刻复活！</td></tr>
+<tr><td class="hp">27</td><td>老鲤</td><td>得闲饮茶</td><td>【得闲饮茶】第1、2回合的资金暂存至第3回合发放；第3回合进入休整期时，获得2、4阶随机干员各1名</td></tr>
+<tr><td class="hp">27</td><td>余</td><td>文火慢炖</td><td>【文火慢炖】第8回合开始时，若仅激活了1个盟约，使其增加36层；否则使所有已激活盟约增加12层</td></tr>
+<tr><td class="hp">27</td><td>坎诺特</td><td>利滚利</td><td>【利滚利】每回合剩余的资金可以继承，剩余至少5资金时，每回合额外获得1资金</td></tr>
+<tr><td class="hp">26</td><td>绮良</td><td>通关奖励</td><td>【通关奖励】每使用20资金，获得一名不高于当前调度中心等级的随机干员</td></tr>
+<tr><td class="hp">26</td><td>克莱门莎</td><td>崇高牺牲</td><td>【崇高牺牲】&lt;阿戈尔&gt;干员被击倒时，提供等同于该干员等阶的&lt;阿戈尔&gt;盟约层数
+在&lt;阿戈尔&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">26</td><td>大帝</td><td>加急调派</td><td>【加急调派】我方干员每次部署后再部署时间减少50%</td></tr>
+<tr><td class="hp">26</td><td>凯瑟琳</td><td>定向投放</td><td>【定向投放】每次升级调度中心时，在调度中心刷新随机3件装备，可以选择并获得其中1件</td></tr>
+<tr><td class="hp">26</td><td>卡莱莎</td><td>食腐之蝶</td><td>【食腐之蝶】我方干员被击倒时，场上剩余我方单位攻击力+20%（最大200%，持续至该干员被击倒或战斗结束）</td></tr>
+<tr><td class="hp">26</td><td>娜仁图亚</td><td>见者有份</td><td>【见者有份】偶数回合进入休整期时，调度中心特殊刷新两件装备，免费获取其中一件；萨尔贡盟约&lt;在场6名不同【萨尔贡】干员&gt;效果替换为【萨尔贡】干员技能开启后，周围八格干员同时享受该干员携带的不高于V阶的装备效果，持续60秒
+在&lt;萨尔贡&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">25</td><td>阿米娅</td><td>众志合一</td><td>【众志合一】场上存在3、4或5种以上激活盟约时，所有干员攻击力、生命值分别+20/30/40%</td></tr>
+<tr><td class="hp">24</td><td>休露丝</td><td>雪域礼赠</td><td>【雪域礼赠】每回合购买的首名&lt;谢拉格&gt;干员消耗资金为1
+在&lt;谢拉格&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">24</td><td>潘格尼尼</td><td>定制铳械</td><td>【定制铳械】累计花费55资金后，获得1名4阶及以上随机的精锐&lt;拉特兰&gt;干员
+在&lt;拉特兰&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">24</td><td>休谟斯</td><td>回收利用</td><td>【回收利用】地面干员技能结束时使周围四格随机1名干员获得3点技力</td></tr>
+<tr><td class="hp">24</td><td>Pith</td><td>优等生</td><td>【优等生】第1回合获得1名可以造成神经、灼燃、凋亡损伤的特殊干员，其属于调和盟约：可以使部分盟约人数计数+1</td></tr>
+<tr><td class="hp">24</td><td>松桐</td><td>九流之缘</td><td>【九流之缘】偶数回合的休整期开始时，随机获得调度中心的一名干员</td></tr>
+<tr><td class="hp">24</td><td>芬</td><td>协力共进</td><td>【协力共进】第8、10、12、14回合时，获得1个&lt;信标&gt;
+&lt;信标&gt;：装备后销毁携带干员，并在调度中心刷新两名同等阶干员免费获取其中一名；原干员在下回合传递给对应盟约人数最多的队友</td></tr>
+<tr><td class="hp">24</td><td>玛恩纳</td><td>业务指标</td><td>【业务指标】每购买一名&lt;卡西米尔&gt;干员，下回合开始时资金+1（每回合至多3资金）
+在&lt;卡西米尔&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">23</td><td>小贾斯汀</td><td>私募基金</td><td>【私募基金】在第1、4、7、10回合进入休整期时获得1个&lt;骑士储蓄罐&gt;
+&lt;骑士储蓄罐&gt;：装备时随机获得1~6资金并销毁</td></tr>
+<tr><td class="hp">23</td><td>佩佩</td><td>博学多通</td><td>【博学多通】升级调度中心至2、4和6级后，获得1次特殊刷新：此次刷新出现的干员优先为&lt;萨尔贡&gt;干员
+在&lt;萨尔贡&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">23</td><td>哈洛德</td><td>人才盲盒</td><td>【人才盲盒】从第4回合开始每2回合获得1名&lt;维多利亚&gt;干员
+在&lt;维多利亚&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">23</td><td>贾维</td><td>团伙行动</td><td>【团伙行动】主动刷新6次调度中心后获得一名不高于当前调度中心等级的&lt;叙拉古&gt;干员（每回合至多获得2名）
+在&lt;叙拉古&gt;部分干员缺席时体验可能不完整</td></tr>
+<tr><td class="hp">22</td><td>陈</td><td>以己之长</td><td>【以己之长】所有干员造成的物理和法术伤害变为弱点伤害（根据敌人的防御力和法术抗性变更伤害类型）</td></tr>
+<tr><td class="hp">22</td><td>巫恋</td><td>替身娃娃</td><td>【替身娃娃】每回合首次出售初始干员时，改为与调度中心中随机一名干员交换</td></tr>
+<tr><td class="hp">22</td><td>杰西卡</td><td>集结指示</td><td>【集结指示】在第4、7、10、13回合进入休整期时获得1个&lt;寻呼模块&gt;
+&lt;寻呼模块&gt;：装备时销毁，立即在调度中心中刷新三名与该干员盟约相同的干员，免费获得其中一名!（不超过当前调度中心等级）</td></tr>
+<tr><td class="hp">20</td><td>铃兰</td><td>御守之力</td><td>【御守之力】每个回合开始时，触发战场上一名干员的获得时效果一次（优先选择最靠右和最靠下）</td></tr></tbody>
+    </table></div>
+  </details>
+</section>
+
+<footer>
+  <p class="src"><b>机制数据</b>：本仓库 <span class="kbd">data/*.json</span>（由官方 act2autochess 表生成）+ <span class="kbd">docs/DESIGN.md</span> / <span class="kbd">PLAYING.md</span>。</p>
+  <p class="src"><b>官方文本</b>：PRTS「卫戍协议：盟约 下半」及「PRTS盟约记录」（帮助 / 盟约 / 干员数据库 / 机变卡）。</p>
+  <p class="src"><b>策略共识</b>：B 站攻略及评论区（2026-03/04：《从夯到拉万字锐评卫戍协议核心盟约》《二期上本节奏和经济运营心得》《阵容推荐-精准全攻略》《陈策略无核心盟约》等 13 条，详见 communicate/RESEARCH.md §7 来源列表）；2025-11（上半）来源的评价已按 3/27 改版修正后引用。</p>
+  <p>非官方同人参考资料 · 卫戍协议：盟约（act2autochess 下半）· 图片 © Hypergryph，仅供个人学习交流，请勿商用 · generated 2026-10-08</p>
+</footer>
+
+</div>
+<script>
+// nav active state + smooth anchor offset
+const links=[...document.querySelectorAll('nav.toc a')];
+const secs=links.map(a=>document.querySelector(a.getAttribute('href')));
+addEventListener('scroll',()=>{let i=secs.findIndex(s=>s&&s.getBoundingClientRect().top<120);if(i<0)i=0;
+links.forEach((l,j)=>l.style.color=j===i?'var(--amber)':'');},{passive:true});
+</script>
+</body>
+</html>

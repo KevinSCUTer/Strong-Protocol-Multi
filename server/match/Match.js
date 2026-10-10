@@ -238,6 +238,7 @@ export class Match {
     this.difficulty = opts.difficulty;
     this.modeId = opts.modeId || modeIdFor(this.mode, opts.difficulty);
     this.seed = (Number(opts.seed) >>> 0) || 1;
+    this.bpBgm = opts.bpMusic?.select(this.seed) ?? null;
     this.log = opts.log || noopLog;
     this.sendFn = opts.send;
     this.broadcastFn = opts.broadcast;

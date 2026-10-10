@@ -138,6 +138,83 @@ describe('bgm selection', () => {
   });
 });
 
+describe('custom BP music', () => {
+  const url = '/api/bp-music/' + 'a'.repeat(64);
+  const key = `bp:${url}`;
+  test('only opening BP phases use a server-selected track; absent or invalid URLs retain defaults', () => {
+    for (const phase of [PHASE.INFO_CHECK, PHASE.BAND_DRAFT, PHASE.BATTLE_CHECK]) {
+      assert.equal(bgmKeyFor('game', { phase, bpBgm: url }), key);
+      assert.equal(bgmKeyFor('game', { phase }), 'lobby');
+      assert.equal(bgmKeyFor('game', { phase, bpBgm: 'https://other.example/music.mp3' }), 'lobby');
+    }
+    assert.equal(bgmKeyFor('room', { phase: PHASE.INFO_CHECK, bpBgm: url }), 'lobby');
+    assert.equal(bgmKeyFor('game', { phase: PHASE.SP_DRAFT, bpBgm: url }), 'prep');
+    assert.equal(bgmKeyFor('game', { phase: PHASE.PREP, bpBgm: url }), 'prep');
+    assert.deepEqual(resolveBgm(null, key), { intro: null, loop: url });
+  });
+  test('a custom track survives gesture unlock and does not restart across opening BP phases', async () => {
+    const fw = fakeWindow();
+    const original = globalThis.fetch;
+    const urls = [];
+    globalThis.fetch = async (u) => { urls.push(u); return { ok: true, arrayBuffer: async () => new ArrayBuffer(8) }; };
+    const tick = () => new Promise((r) => setTimeout(r, 10));
+    try {
+      const a = new AudioManager({ win: fw.win, getManifest: () => manifest });
+      a.install(); a.playBgm(key);
+      assert.equal(urls.length, 0);
+      fw.fire('pointerdown'); await tick();
+      assert.equal(a.bgm.loopUrl, url);
+      const source = a.bgm.nodes[0].src;
+      a.playBgm(bgmKeyFor('game', { phase: PHASE.BAND_DRAFT, bpBgm: url }));
+      assert.equal(a.bgm.nodes[0].src, source);
+      assert.deepEqual(urls, [url]);
+      a.playBgm('prep'); await tick();
+      assert.equal(a.bgm.loopUrl, resolveBgm(manifest, 'prep').loop);
+      a.playBgm(null);
+    } finally { globalThis.fetch = original; }
+  });
+  test('a corrupt MP3 falls back when Web Audio cannot decode it', async () => {
+    const fw = fakeWindow();
+    const original = globalThis.fetch;
+    globalThis.fetch = async (u) => ({ ok: true, arrayBuffer: async () => new ArrayBuffer(u === url ? 1 : 8) });
+    try {
+      const a = new AudioManager({ win: fw.win, getManifest: () => manifest });
+      a.install(); fw.fire('pointerdown');
+      a.ctx.decodeAudioData = (bytes, ok, fail) => bytes.byteLength === 1 ? fail(new Error('corrupt MP3')) : ok({ duration: 1.5 });
+      a.playBgm(key);
+      await new Promise((r) => setTimeout(r, 10));
+      assert.equal(a.bgm.loopUrl, resolveBgm(manifest, 'lobby').loop);
+      a.playBgm(null);
+    } finally { globalThis.fetch = original; }
+  });
+  test('HTTP failures fall back, and a late failed BP load cannot replace the next phase', async () => {
+    const fw = fakeWindow();
+    const original = globalThis.fetch;
+    let release;
+    let held = null;
+    globalThis.fetch = async (u) => {
+      if (u === url) { if (held) await held; return { ok: false, status: 404 }; }
+      return { ok: true, arrayBuffer: async () => new ArrayBuffer(8) };
+    };
+    const tick = () => new Promise((r) => setTimeout(r, 10));
+    try {
+      const a = new AudioManager({ win: fw.win, getManifest: () => manifest });
+      a.install(); fw.fire('pointerdown');
+      a.playBgm(key); await tick();
+      assert.equal(a.bgm.loopUrl, resolveBgm(manifest, 'lobby').loop);
+      a.playBgm(null);
+      const b = new AudioManager({ win: fw.win, getManifest: () => manifest });
+      b.install(); fw.fire('pointerdown');
+      held = new Promise((r) => { release = r; });
+      b.playBgm(key);
+      b.playBgm('prep'); await tick();
+      release(); await tick();
+      assert.equal(b.bgm.loopUrl, resolveBgm(manifest, 'prep').loop);
+      b.playBgm(null);
+    } finally { globalThis.fetch = original; }
+  });
+});
+
 describe('SfxLimiter', () => {
   test('caps concurrent voices', () => {
     const l = new SfxLimiter({ maxVoices: 3, unitCooldownMs: 0, urlGapMs: 0 });

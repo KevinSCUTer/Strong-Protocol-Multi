@@ -12,6 +12,8 @@
 // - The AudioContext is created on the first user gesture (pointerdown/keydown/touchend), so browsers
 //   never block or warn; everything requested before that is remembered (BGM) or dropped (SFX).
 // - Channels: master → { bgm, sfx, voice } gains; volumes from settings (0..1) + mute. Tab hidden ⇒ suspend.
+// - BP: a server-selected MP3 URL in m.public.bpBgm covers INFO_CHECK/BAND_DRAFT/BATTLE_CHECK. A missing
+//   or undecodable custom track falls back to the manifest's lobby music (owner decision 2026-10-10).
 // - BGM: `intro` then `loop` (1 s crossfade); switching tracks fades out/in (0.8 s). The same loop URL
 //   keeps playing across phases (prep and combat share a track).
 // - 开战 BGM: `bgm.combatAlts` are the mode's own battle tracks (塞壬唱片 骑士之日 / 无畏者). The track is fixed per
@@ -115,6 +117,8 @@ export function bgmKeyFor(route, pub, combatTrack = null) {
   if (route !== 'game') return route === 'title' || route === 'lobby' || route === 'room' ? 'lobby' : null;
   const phase = pub?.phase;
   if (!phase) return 'lobby';
+  if ([PHASE.INFO_CHECK, PHASE.BAND_DRAFT, PHASE.BATTLE_CHECK].includes(phase)
+    && typeof pub.bpBgm === 'string' && /^\/api\/bp-music\/[a-f0-9]{64}$/.test(pub.bpBgm)) return `bp:${pub.bpBgm}`;
   switch (phase) {
     case PHASE.INFO_CHECK: case PHASE.BAND_DRAFT: case PHASE.BATTLE_CHECK: case PHASE.RESULT: case PHASE.LOBBY:
       return 'lobby';
@@ -145,7 +149,9 @@ export function bgmKeyFor(route, pub, combatTrack = null) {
  */
 export function resolveBgm(manifest, key) {
   const a = manifest?.audio;
-  if (!a || !key) return null;
+  if (!key) return null;
+  if (/^bp:\/api\/bp-music\/[a-f0-9]{64}$/.test(key)) return { intro: null, loop: key.slice(3) };
+  if (!a) return null;
   let t = null;
   if (key.startsWith('boss:')) t = a.bossBgm?.[key.slice(5)] || a.bgm?.boss;
   else if (key.startsWith('combat:')) t = a.bgm?.combatAlts?.[Number(key.slice('combat:'.length))] || a.bgm?.combat;
@@ -780,7 +786,14 @@ export class AudioManager {
 
   async _startBgm(key, track, token) {
     const [intro, loop] = await Promise.all([track.intro ? this._buffer(track.intro) : null, this._buffer(track.loop)]);
-    if (token !== this.bgmToken || !this.ctx || !loop) return;
+    if (token !== this.bgmToken || !this.ctx) return;
+    if (!loop) {
+      if (key.startsWith('bp:')) {
+        const fallback = resolveBgm(this.getManifest(), 'lobby');
+        if (fallback) await this._startBgm('lobby', fallback, token);
+      }
+      return;
+    }
     try {
       const ctx = this.ctx;
       const gain = ctx.createGain();
@@ -1185,7 +1198,8 @@ export function installAudio(deps) {
       sync(deps.getState());
       return deps.subscribe((s, prev) => {
         if (s.match?.public?.phase !== prev?.match?.public?.phase || s.room !== prev?.room || s.session !== prev?.session
-          || s.match?.public?.bossId !== prev?.match?.public?.bossId) sync(s);
+          || s.match?.public?.bossId !== prev?.match?.public?.bossId
+          || s.match?.public?.bpBgm !== prev?.match?.public?.bpBgm) sync(s);
       });
     }
   } catch (err) { console.warn('[audio] install failed', err); }

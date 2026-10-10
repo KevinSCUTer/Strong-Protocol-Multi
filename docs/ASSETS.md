@@ -74,7 +74,8 @@ npm run assets       # = node tools/vendor.mjs && node tools/fetch-assets.mjs
 | `--prune` | Delete files under `public/assets/` that the manifest no longer references, for example after a mapping change. Without this flag they are only listed in the report. `public/assets/local/` (written by `tools/local-extract`) is never pruned. Implies `--allow-shrink`. |
 | `--allow-shrink` | Write `data/assets.json` even when it loses entries the current one has (see "The manifest never shrinks by accident" below). |
 | `--strict` | Exit 1 when a leaf was dropped for having no file on disk, instead of only reporting it (see "A dropped leaf is reported" below). The same as the environment variable `SP_ASSETS_STRICT=1` — for CI and packaging builds. |
-| `--add-only` | For a checkout whose `public/assets/` and `public/fonts/` are shared with another one (a git worktree with symlinked asset folders): download only the files missing on disk and never re-download, rewrite or delete an existing file — atlases already on disk are left as they are, the fonts are not rebuilt (the manifest keeps its current `fonts`). Not with `--prune` / `--force`. |
+| `--add-only` | For shared `public/assets/` and `public/fonts/` roots: download only missing files and never re-download, rewrite or delete an existing file. Existing nonempty atlases, font originals, WOFF2 and `fonts.css` are preserved; missing or zero-byte font files are added. The manifest keeps its current `fonts` entry. Not with `--prune` / `--force`. |
+| `--download-only` | Plan and download resources without writing `data/assets.json`. Reports planned files absent from the committed manifest as `unmanifested`; the client can use them after a maintained manifest declares them. Not with `--prune` / `--allow-shrink`. |
 | `--local-spines` | Rewrite `tools/assets/local-enemy-spines.json` and `tools/assets/local-token-spines.json` (the metadata of the enemy and token models only the local client has, see "Enemy aliases" and "Token models from the local client") from the models `tools/local-extract/extract.py` extracted to `public/assets/local/spine/enemy/` and `public/assets/local/spine/token/`. Run it after a game update changed them; without it the committed files are used and a differing extraction only gets a warning. |
 
 **The manifest never shrinks by accident.** An entry whose files are missing on this machine is left out of a rebuilt
@@ -138,6 +139,24 @@ Upstream indexes are cached under `.cache/`. They are downloaded when missing:
 - `.cache/ark-models/models_data.json`, from `isHarryh/Ark-Models`.
 
 The research JSONs in `docs/research/` (03, 05, 07) define **which** ids are needed.
+
+## Source deployment and external content
+
+The root `start.sh` uses `tools/deploy.mjs` and `fetch-assets --add-only --download-only`: every preparation plans from
+current game data, adds missing files (including atlas texture pages and fonts), and checks the committed manifest
+against nonempty files on disk. Existing shared root symlinks and files stay intact; tracked manifests and the lockfile
+are not rewritten by preparation. See [DEPLOY.md](DEPLOY.md#源码部署根目录-startsh) for first installation and updates.
+Optional local-client art remains optional. A new skin needs a planner entry and a maintained runtime manifest;
+downloading an undeclared skin alone does not add a skin selector to this checkout.
+
+The illustrated guides under `public/tutorial/` reference 103 existing manifest URLs rather than embedding game art.
+`tools/import-tutorial.mjs` reproduces the conversion from the supplied tutorial package using local assets and macOS
+`sips` thumbnails; this maintainer tool is not run by Linux startup. The served pages require the site's image resources,
+and the index labels have been updated to reflect that. The index also identifies the official four-player reference
+and the capacity fork's room, group and leader-HP differences.
+
+Administrator-provided BP MP3s are read from external `MP3_FOLDER` at server startup. They are neither downloaded by the
+asset planner nor listed in `data/assets.json` or the browser asset pack. See [BP music configuration](DEPLOY.md#自定义开局-bp-音乐).
 
 ## What is downloaded
 

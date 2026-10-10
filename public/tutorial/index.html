@@ -1,0 +1,308 @@
+<!doctype html>
+<!--
+  Converted by tools/import-tutorial.mjs from Tutorial/index.html (source sha256 2ae8964f72bbbe40…).
+  8 embedded game images replaced by /assets/… URLs (SHA-256 match:
+  8 byte-exact, 0 via the generator's 96 px thumbnail).
+  No game art is committed (AGENTS.md); the images load from this server's local asset folder.
+  Regenerate: node tools/import-tutorial.mjs <sourceDir>
+-->
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>卫戍协议：盟约 · 攻略入口</title>
+<meta name="color-scheme" content="dark">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%230a0d12'/%3E%3Cpath d='M16 5l9 4v8c0 5.2-3.8 8.6-9 10-5.2-1.4-9-4.8-9-10V9l9-4z' fill='none' stroke='%23ffb02e' stroke-width='2.4'/%3E%3Cpath d='M11 16.5l3.4 3.4L21.5 13' fill='none' stroke='%23ffb02e' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0a0d12;
+    --panel: #10151d;
+    --panel2: #0d1219;
+    --line: rgba(255, 255, 255, .09);
+    --ink: #e8ecf2;
+    --dim: #8b95a5;
+    --faint: #59637433;
+    --amber: #ffb02e;
+    --green: #7dd87d;
+    --lcyan: #7fd0e8;
+    --cyan: #41c8dc;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: -apple-system, "PingFang SC", "HarmonyOS Sans SC", "Microsoft YaHei", "Segoe UI", sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+  /* atmosphere: grid + scanlines + top glow */
+  body::before {
+    content: "";
+    position: fixed; inset: 0; z-index: -2;
+    background:
+      radial-gradient(ellipse 70% 42% at 50% -8%, rgba(255, 176, 46, .09), transparent 62%),
+      linear-gradient(rgba(255, 255, 255, .028) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, .028) 1px, transparent 1px);
+    background-size: 100% 100%, 34px 34px, 34px 34px;
+  }
+  body::after {
+    content: "";
+    position: fixed; inset: 0; z-index: -1;
+    pointer-events: none;
+    background: repeating-linear-gradient(0deg, rgba(255, 255, 255, .018) 0 1px, transparent 1px 3px);
+  }
+
+  .hazard {
+    height: 5px;
+    background: repeating-linear-gradient(-45deg, var(--amber) 0 14px, #14100a 14px 28px);
+    opacity: .85;
+  }
+
+  .wrap { max-width: 880px; margin: 0 auto; padding: 0 20px; position: relative; }
+  /* corner brackets on the whole frame */
+  .page { position: relative; padding: 44px 0 30px; }
+  .page::before, .page::after {
+    content: ""; position: fixed; width: 26px; height: 26px; z-index: 3; pointer-events: none;
+    border-color: rgba(255, 176, 46, .4); border-style: solid;
+  }
+  .page::before { top: 14px; left: 14px; border-width: 1px 0 0 1px; }
+  .page::after { bottom: 14px; right: 14px; border-width: 0 1px 1px 0; }
+
+  @keyframes rise { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: none; } }
+
+  /* ── hero ─────────────────────────────────────── */
+  header { padding: 34px 0 10px; text-align: center; animation: rise .55s ease both; }
+  .tag {
+    font-family: var(--mono); font-size: 11px; letter-spacing: .32em;
+    color: var(--amber); opacity: .9; text-transform: uppercase;
+  }
+  .tag::before, .tag::after { content: "//"; color: var(--dim); opacity: .5; margin: 0 .6em; }
+  .title-row {
+    display: flex; align-items: baseline; justify-content: center;
+    gap: 12px; flex-wrap: wrap; margin: 14px 0 6px;
+  }
+  h1 {
+    font-size: clamp(30px, 7.4vw, 46px); font-weight: 800; letter-spacing: .04em; line-height: 1.2;
+    text-shadow: 0 0 34px rgba(255, 176, 46, .18);
+  }
+  h1 em { font-style: normal; color: var(--amber); }
+  .stamp {
+    font-size: clamp(13px, 3vw, 16px); font-weight: 700; letter-spacing: .3em; text-indent: .3em;
+    color: var(--amber); border: 1.5px solid rgba(255, 176, 46, .75);
+    padding: 3px 8px 2px; border-radius: 4px; transform: rotate(-3deg) translateY(-4px);
+    box-shadow: 0 0 14px rgba(255, 176, 46, .15), inset 0 0 10px rgba(255, 176, 46, .07);
+    white-space: nowrap;
+  }
+  .sub { color: var(--dim); font-size: 15px; max-width: 34em; margin: 6px auto 0; }
+  .sub b { color: var(--ink); font-weight: 600; }
+
+  /* bond icon strip */
+  .bonds {
+    display: flex; justify-content: center; align-items: center;
+    gap: 9px; margin: 22px auto 4px; padding: 10px 14px;
+    width: fit-content; max-width: 100%;
+    border: 1px solid var(--line); border-radius: 12px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .025), transparent);
+  }
+  .bonds img {
+    /* flexible icons: the row shrinks proportionally on narrow screens instead of overflowing */
+    flex: 0 1 38px; min-width: 0; width: 38px; aspect-ratio: 1; height: auto;
+    border-radius: 8px; display: block;
+    filter: grayscale(.55) brightness(.82);
+    transition: filter .2s ease, transform .2s ease;
+  }
+  .bonds img:hover {
+    filter: none; transform: translateY(-3px) scale(1.12);
+  }
+
+  .meta {
+    display: flex; justify-content: center; flex-wrap: wrap; gap: 8px 14px;
+    margin-top: 16px;
+    font-family: var(--mono); font-size: 11px; color: var(--dim); letter-spacing: .08em;
+  }
+  .meta span::before { content: "▸ "; color: var(--amber); opacity: .7; }
+
+  /* ── cards ────────────────────────────────────── */
+  .opts {
+    display: grid; grid-template-columns: 1fr; gap: 14px;
+    margin: 34px 0 26px;
+  }
+  @media (min-width: 640px) { .opts { grid-template-columns: 1fr 1fr; } }
+  a.opt {
+    --c: var(--amber);
+    position: relative; display: block; overflow: hidden;
+    background: linear-gradient(180deg, var(--panel), var(--panel2));
+    border: 1px solid var(--line); border-radius: 14px;
+    padding: 20px 20px 18px; text-decoration: none; color: var(--ink);
+    animation: rise .55s ease both;
+    transition: transform .18s ease, border-color .18s ease, box-shadow .18s ease;
+  }
+  a.opt:nth-child(1) { animation-delay: .08s; --c: var(--green); }
+  a.opt:nth-child(2) { animation-delay: .16s; --c: var(--lcyan); }
+  a.opt:nth-child(3) { animation-delay: .24s; --c: var(--amber); }
+  a.opt:nth-child(4) { animation-delay: .32s; --c: var(--cyan); }
+  /* top accent rail */
+  a.opt::before {
+    content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, var(--c), transparent 70%);
+    opacity: .55; transition: opacity .18s ease;
+  }
+  /* giant corner number watermark */
+  .num {
+    position: absolute; right: 10px; top: -6px;
+    font-family: var(--mono); font-size: 74px; font-weight: 700; line-height: 1;
+    color: var(--c); opacity: .07; pointer-events: none;
+  }
+  a.opt:hover, a.opt:focus-visible {
+    transform: translateY(-3px);
+    border-color: var(--c); /* fallback for pre-color-mix webviews */
+    border-color: color-mix(in srgb, var(--c) 55%, transparent);
+    box-shadow: 0 10px 30px -12px rgba(0, 0, 0, .55);
+    box-shadow: 0 10px 30px -12px color-mix(in srgb, var(--c) 35%, transparent),
+                0 0 0 1px color-mix(in srgb, var(--c) 18%, transparent);
+    outline: none;
+  }
+  a.opt:hover::before, a.opt:focus-visible::before { opacity: 1; }
+  .row { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+  .who {
+    font-family: var(--mono); font-size: 10px; letter-spacing: .22em;
+    color: var(--c);
+    border: 1px solid var(--c); /* fallback for pre-color-mix webviews (WeChat/QQ kernels) */
+    border-color: color-mix(in srgb, var(--c) 45%, transparent);
+    padding: 2px 8px 1px; border-radius: 99px; white-space: nowrap;
+  }
+  .go {
+    margin-left: auto; color: var(--c); font-family: var(--mono); font-size: 15px;
+    transition: transform .18s ease; opacity: .85;
+  }
+  a.opt:hover .go, a.opt:focus-visible .go { transform: translateX(5px); }
+  a.opt h2 { font-size: 19px; font-weight: 750; letter-spacing: .02em; margin-bottom: 6px; }
+  a.opt p { font-size: 13.5px; color: var(--dim); }
+  a.opt p b { color: var(--c); font-weight: 600; }
+
+  /* ── footer ───────────────────────────────────── */
+  footer {
+    border-top: 1px solid var(--line);
+    margin-top: 10px; padding: 20px 0 34px;
+    font-size: 12px; color: var(--dim); text-align: center;
+  }
+  footer .fm { font-family: var(--mono); font-size: 10px; letter-spacing: .18em; opacity: .7; margin-bottom: 8px; }
+  footer p { max-width: 46em; margin: 0 auto; line-height: 1.7; }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation: none !important; transition: none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="hazard"></div>
+<div class="page">
+  <div class="wrap">
+
+    <header>
+      <div class="tag">STRONGHOLD PROTOCOL · COVENANT</div>
+      <div class="title-row">
+        <h1>卫戍协议<em>：</em>盟约</h1>
+        <span class="stamp">攻略合集</span>
+      </div>
+      <p class="sub">一个模式，<b>四种打开方式</b>。按你现在的状态选入口 —— 每一份都图文并茂、手机可直接读。</p>
+
+      <div class="bonds" aria-label="八大核心盟约图标">
+        <img src="/assets/bond/yanShip.png" alt="炎" title="炎">
+        <img src="/assets/bond/sargonShip.png" alt="萨尔贡" title="萨尔贡">
+        <img src="/assets/bond/victoriaShip.png" alt="维多利亚" title="维多利亚">
+        <img src="/assets/bond/kjeragShip.png" alt="谢拉格" title="谢拉格">
+        <img src="/assets/bond/lateranoShip.png" alt="拉特兰" title="拉特兰">
+        <img src="/assets/bond/egirShip.png" alt="阿戈尔" title="阿戈尔">
+        <img src="/assets/bond/siracusaShip.png" alt="叙拉古" title="叙拉古">
+        <img src="/assets/bond/kazimierzShip.png" alt="卡西米尔" title="卡西米尔">
+      </div>
+
+      <div class="meta">
+        <span>4 份攻略</span>
+        <span>图片随站点加载</span>
+        <span>在线阅读</span>
+        <span>口径 2026-03-27 版</span>
+      </div>
+    </header>
+
+    <main class="opts">
+      <a class="opt" href="stronghold_eli5.html">
+        <span class="num">01</span>
+        <div class="row"><span class="who">FOR BEGINNERS</span><span class="go">-&gt;</span></div>
+        <h2>从零开始指南</h2>
+        <p>没玩过任何自走棋？<b>5 分钟</b>搞懂这是什么、一局怎么走、每回合该干哪三件事 —— 读完直接开第一把。</p>
+      </a>
+
+      <a class="opt" href="how_to_play_with_teammate.html">
+        <span class="num">02</span>
+        <div class="row"><span class="who">FOR SQUADS</span><span class="go">-&gt;</span></div>
+        <h2>联机开黑指南</h2>
+        <p>就想和朋友一起玩？开黑全流程、<b>共享卡池 · 救火 · 决赛合流</b>三条铁律、开局 30 秒会议模板、AI 托管安全网。</p>
+      </a>
+
+      <a class="opt" href="lol.html">
+        <span class="num">03</span>
+        <div class="row"><span class="who">FOR TFT VETERANS</span><span class="go">-&gt;</span></div>
+        <h2>金铲铲玩家速成</h2>
+        <p>玩惯了云顶 / 金铲铲？<b>五大机制纠偏</b> + 叠层机器 + 经济节奏 + 各盟约运营共识，约 15 分钟完成迁移。</p>
+      </a>
+
+      <a class="opt" href="arknight_stronghold.html">
+        <span class="num">04</span>
+        <div class="row"><span class="who">FOR THEORYCRAFTERS</span><span class="go">-&gt;</span></div>
+        <h2>作战简报（硬核版）</h2>
+        <p>要数据不要故事：<b>23 盟约公式</b>、特质引擎排行、40 策略全表、BP 数学、联防与终章规则。</p>
+      </a>
+    </main>
+
+    <footer>
+      <div class="fm">NON-COMMERCIAL FAN PROJECT · 卫戍协议：盟约</div>
+      <p>非官方同人参考资料，与 Hypergryph / Yostar 无关；机制口径为本仓库 data/*.json（官方 2026-03-27 改版后的表生成）。游戏素材版权归鹰角网络所有，仅供学习交流，严禁商用。</p>
+    </footer>
+
+  </div>
+</div>
+<!-- fork note (tools/import-tutorial.mjs): the guides describe the official 4-player
+     reference; this deployment is the capacity fork (rooms up to 20, fixed card-pool groups drafting
+     in parallel, docs/PLAYER_CAPACITY.md). Shown in the reader's game language. -->
+<style>
+  .sp-fork-note { margin: 0 0 22px; padding: 12px 16px; border: 1px solid rgba(255, 176, 46, .45);
+    background: rgba(255, 176, 46, .07); border-radius: 6px; font-size: 13.5px; line-height: 1.7; color: #d8dee8; }
+  .sp-fork-note b { color: #ffb02e; }
+</style>
+<script>
+(function () {
+  var NOTES = {
+    'zh': '本攻略按官方 4 人模式的口径撰写。本服务器为扩容分支：房间可选 4 / 8 / 10 / 16 / 20 人（上限 20），卡池与轮选按开局人数固定分组并行进行；领袖生命值按开战时存活人数计算（人数 × 基准值，独立模拟为完整值）。攻略中的推荐流程以官方 4 人体验为准，请按实际人数灵活调整。',
+    'zh-TW': '本攻略按官方 4 人模式的口徑撰寫。本伺服器為擴充分支：房間可選 4 / 8 / 10 / 16 / 20 人（上限 20），卡池與輪選按開局人數固定分組並行進行；領袖生命值按開戰時存活人數計算（人數 × 基準值，獨立模擬為完整值）。攻略中的推薦流程以官方 4 人體驗為準，請按實際人數靈活調整。',
+    'en': 'These guides follow the official 4-player reference. This server runs the capacity fork: rooms of 4 / 8 / 10 / 16 / 20 players (hard cap 20) with card pools split into fixed groups that draft in parallel; the leader’s max HP scales with the players alive at battle start (players × the base value; the solo simulation uses the full value). The recommended flow assumes the official 4-player experience — adjust to your room size.',
+    'ja': '本ガイドは公式の4人モード基準で執筆されています。このサーバーは拡張ブランチ（4 / 8 / 10 / 16 / 20 人・最大20人、固定グループによる並行ドラフト、リーダーの最大HPは開戦時の生存人数に比例）で動作しています。推奨フローは公式の4人体験を基準にしているため、実際の人数に合わせて調整してください。',
+    'ko': '이 가이드는 공식 4인 모드 기준으로 작성되었습니다. 이 서버는 확장 브랜치(4 / 8 / 10 / 16 / 20인, 최대 20명, 고정 그룹 병행 드래프트, 리더 최대 HP는 개전 시 생존 인원수에 비례)로 운영됩니다. 권장 진행은 공식 4인 기준이므로 실제 인원수에 맞게 조정하세요.'
+  };
+  var lang = '';
+  try { lang = String(JSON.parse(localStorage.getItem('sp.pref.lang')) || ''); } catch (e) { /* not set */ }
+  if (!lang) {
+    var nav = (navigator.languages && navigator.languages[0]) || navigator.language || '';
+    lang = String(nav);
+  }
+  var l = lang.toLowerCase();
+  var text = NOTES['zh'];
+  if (l.indexOf('hant') >= 0 || l.indexOf('-tw') >= 0 || l.indexOf('-hk') >= 0 || l.indexOf('-mo') >= 0) text = NOTES['zh-TW'];
+  else if (l.indexOf('en') === 0) text = NOTES['en'];
+  else if (l.indexOf('ja') === 0) text = NOTES['ja'];
+  else if (l.indexOf('ko') === 0) text = NOTES['ko'];
+  var div = document.createElement('div');
+  div.className = 'sp-fork-note';
+  div.setAttribute('role', 'note');
+  div.innerHTML = '<b>' + (text === NOTES['en'] ? 'Note: ' : '※ ') + '</b>' + text;
+  var host = document.querySelector('.wrap') || document.body;
+  host.insertBefore(div, host.firstChild);
+})();
+</script>
+</body>
+</html>
