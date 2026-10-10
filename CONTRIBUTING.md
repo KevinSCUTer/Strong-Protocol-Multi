@@ -12,7 +12,7 @@ git clone https://github.com/sganggs/Stronghold-Protocol.git
 cd Stronghold-Protocol
 npm install        # postinstall 把 pixi / preact / three 复制到 public/vendor
 npm run setup      # 下载美术 / 音频（只跑测试可以不下载，缺素材的用例会自动跳过）
-npm run dev        # 启动服务器（node --watch，改了服务器代码自动重启）：http://localhost:3000
+npm run dev        # 启动服务器（node --watch，改了服务器代码自动重启）：http://localhost:3325
 ```
 
 `npm run doctor` 检查 Node 版本、素材、端口。官方数据表由 `tools/build-data.mjs` 下载到 `.cache/gamedata/`，改数据时才需要。

@@ -10,7 +10,7 @@
 //     m.field) also draw from a second, much smaller bucket (2/s, burst 6), so one socket cannot turn
 //     40 tiny requests per second into hundreds of KB/s of downstream traffic.
 //   * Client address per connection (`clientAddress`): the socket peer, or — when the peer is a local
-//     reverse proxy (loopback / private address, e.g. `cloudflared tunnel --url http://localhost:3000`) —
+//     reverse proxy (loopback / private address, e.g. `cloudflared tunnel --url http://localhost:3325`) —
 //     the address it forwards (CF-Connecting-IP, X-Real-IP, rightmost X-Forwarded-For). Its `key` (IPv4
 //     address or IPv6 /64) is what per-network limits count against: concurrent sockets here
 //     (`maxConnectionsPerAddr`, checked at upgrade time through `admission`), rooms and running matches

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // tools/doctor.mjs — diagnose an install (docs/DEPLOY.md「排错」). Read-only: changes nothing.
 //
-//   node tools/doctor.mjs [--port 3000] [--host ::]
+//   node tools/doctor.mjs [--port 3325] [--host ::]
 //
 // Checks: Node/npm versions, dependencies, public/vendor, data/*.json, the shipped files against the release's
 // MANIFEST.json (server/update.js checkInstall; a source checkout has none) and an update package not applied yet,
@@ -47,7 +47,7 @@ function ipv6Head(ip) {
   return [h1, Number.isInteger(h2) ? h2 : 0];
 }
 
-/** An http URL for one address. An IPv6 literal needs brackets (`http://[240e:…]:3000`). Also used by scripts/launch.mjs. */
+/** An http URL for one address. An IPv6 literal needs brackets (`http://[240e:…]:3325`). Also used by scripts/launch.mjs. */
 export function hostUrl(address, port) {
   return `http://${String(address).includes(':') ? `[${address}]` : address}:${port}`;
 }
@@ -194,7 +194,7 @@ function tool(cmd, args) {
 // ---------------------------------------------------------------------------------------------------
 
 function parseArgs(argv) {
-  const o = { port: Number(process.env.PORT) || 3000, host: process.env.HOST || '::', help: false };
+  const o = { port: Number(process.env.PORT) || 3325, host: process.env.HOST || '::', help: false };
   for (let i = 0; i < argv.length; i++) {
     const [k, v] = argv[i].split('=');
     const val = () => (v !== undefined ? v : argv[++i]);
@@ -209,7 +209,7 @@ function parseArgs(argv) {
 async function main() {
   let opts;
   try { opts = parseArgs(process.argv.slice(2)); } catch (e) { console.error(e.message); return 2; }
-  if (opts.help) { console.log('node tools/doctor.mjs [--port 3000] [--host ::]  — 只读诊断，不修改任何文件'); return 0; }
+  if (opts.help) { console.log('node tools/doctor.mjs [--port 3325] [--host ::]  — 只读诊断，不修改任何文件'); return 0; }
   const rows = [];
   let bad = false;
   const row = (state, label, detail = '') => { rows.push([state, label, detail]); if (state === 'err') bad = true; };
@@ -265,16 +265,16 @@ async function main() {
     row('ok', `端口 ${opts.port}`, `服务器正在运行${h.app ? `（v${h.app}）` : ''}：运行 ${h.uptimeSec}s · 房间 ${h.rooms ?? '?'} · 对局 ${h.matches ?? '?'} · 连接 ${h.sockets ?? '?'}`);
   } else if (port.state === 'free') row('ok', `端口 ${opts.port}`, '空闲（服务器未运行；npm start 启动）');
   else if (port.state === 'denied') row('err', `端口 ${opts.port}`, '没有权限监听（Linux 上 < 1024 的端口需要 root）→ 换一个 PORT');
-  else row('err', `端口 ${opts.port}`, `被其他程序占用（${port.code}）→ 关闭它或换端口：${IS_WIN ? '$env:PORT=3001; npm start' : 'PORT=3001 npm start'}`);
+  else row('err', `端口 ${opts.port}`, `被其他程序占用（${port.code}）→ 关闭它或换端口：${IS_WIN ? '$env:PORT=3326; npm start' : 'PORT=3326 npm start'}`);
   const env = ['PORT', 'HOST', 'SP_COMBAT', 'SP_VERIFY', 'TRUST_PROXY', 'DEBUG'].filter((k) => process.env[k] != null && process.env[k] !== '');
-  row('skip', '环境变量', env.length ? env.map((k) => `${k}=${process.env[k]}`).join(' ') : '全部默认（PORT=3000 HOST=:: SP_COMBAT=client SP_VERIFY=off）');
+  row('skip', '环境变量', env.length ? env.map((k) => `${k}=${process.env[k]}`).join(' ') : '全部默认（PORT=3325 HOST=:: SP_COMBAT=client SP_VERIFY=off）');
 
   section('朋友如何访问');
   const addrs = classifyAddresses();
   if (!addrs.length) row('warn', '网络', '没有可用的地址（未联网？）');
   for (const a of addrs) {
     const usable = a.kind === 'lan' || a.kind === 'vpn' || a.kind === 'public';
-    // An IPv6 literal needs the brackets of hostUrl(): `http://240e:…:3000` is not a URL anyone can open.
+    // An IPv6 literal needs the brackets of hostUrl(): `http://240e:…:3325` is not a URL anyone can open.
     row(usable ? 'ok' : 'skip', hostUrl(a.address, opts.port), `${KIND_LABEL[a.kind]} · ${a.name}`);
   }
   if (opts.host !== '0.0.0.0' && opts.host !== '::') row('warn', 'HOST', `HOST=${opts.host}：只监听这个地址，其他电脑可能连不上（默认 :: 双栈）`);

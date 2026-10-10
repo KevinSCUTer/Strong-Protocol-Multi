@@ -33,7 +33,7 @@
      git clone https://github.com/sganggs/Stronghold-Protocol.git C:\Stronghold-Protocol
      ```
 3. 双击 `C:\Stronghold-Protocol\scripts\start-windows.bat`。首次会：安装依赖（`npm ci`；整合包已含，跳过）→ 复制前端库（整合包已含，跳过）→ 下载约 550 MB 素材（完整包已含，跳过；精简包和源码在这一步下载，显示进度，中断后再次启动会续传）→ 若检测到本机的明日方舟客户端，询问是否提取官方贴图（可跳过）→ 启动服务器并打开浏览器。
-4. 窗口里会打印朋友可用的地址，例如 `http://192.168.1.23:3000`。用另一台设备打开它确认能进入。关闭窗口即停止服务器。
+4. 窗口里会打印朋友可用的地址，例如 `http://192.168.1.23:3325`。用另一台设备打开它确认能进入。关闭窗口即停止服务器。
 
 等价的手动命令：`npm ci`、`node tools/setup.mjs`、`npm start`。
 
@@ -66,7 +66,7 @@ $env:SP_ASSET_SOURCE = 'mirror'             # 也可用环境变量显式启用
 - 第一次启动时 Windows 会弹出「Windows 安全中心警报」：勾选**专用网络**并点「允许访问」。
 - 没弹窗或点错了，用**管理员** PowerShell 添加规则（下面的开机自启脚本也会自动添加）：
   ```powershell
-  netsh advfirewall firewall add rule name="Stronghold Protocol" dir=in action=allow protocol=TCP localport=3000 profile=private,domain
+  netsh advfirewall firewall add rule name="Stronghold Protocol" dir=in action=allow protocol=TCP localport=3325 profile=private,domain
   ```
 - 家里的网络要是「公用网络」，Windows 会拦截入站连接。改成专用（管理员 PowerShell；网卡名用 `Get-NetConnectionProfile` 查看）：
   ```powershell
@@ -106,7 +106,7 @@ powershell -ExecutionPolicy Bypass -File scripts\install-service-windows.ps1
 winget install NSSM.NSSM            # 或从 https://nssm.cc 下载
 nssm install StrongholdProtocol "C:\Program Files\nodejs\node.exe" server\index.js
 nssm set StrongholdProtocol AppDirectory C:\Stronghold-Protocol
-nssm set StrongholdProtocol AppEnvironmentExtra PORT=3000 HOST=::
+nssm set StrongholdProtocol AppEnvironmentExtra PORT=3325 HOST=::
 nssm set StrongholdProtocol AppStdout C:\Stronghold-Protocol\logs\server.log
 nssm set StrongholdProtocol AppStderr C:\Stronghold-Protocol\logs\server.log
 nssm start StrongholdProtocol
@@ -157,15 +157,15 @@ powershell -ExecutionPolicy Bypass -File scripts\install-service-windows.ps1 -Re
 
 组一个虚拟局域网：不需要公网 IP、不需要改路由器、不暴露到互联网。
 
-- **Tailscale**：主机和朋友都安装 <https://tailscale.com/download>（Windows：`winget install Tailscale.Tailscale`）并登录。朋友用自己的账号时，在 Tailscale 管理后台把这台主机「Share」给他们，或邀请他们加入你的 tailnet。朋友访问 `http://<主机的 100.x.y.z 地址>:3000`（`tailscale ip -4` 查看；开了 MagicDNS 也可以用 `http://<主机名>:3000`）。
-- **ZeroTier**：在 <https://my.zerotier.com> 创建网络，主机和朋友安装客户端并加入同一个 Network ID，在后台勾选授权成员；访问 `http://<主机的 ZeroTier IP>:3000`。
+- **Tailscale**：主机和朋友都安装 <https://tailscale.com/download>（Windows：`winget install Tailscale.Tailscale`）并登录。朋友用自己的账号时，在 Tailscale 管理后台把这台主机「Share」给他们，或邀请他们加入你的 tailnet。朋友访问 `http://<主机的 100.x.y.z 地址>:3325`（`tailscale ip -4` 查看；开了 MagicDNS 也可以用 `http://<主机名>:3325`）。
+- **ZeroTier**：在 <https://my.zerotier.com> 创建网络，主机和朋友安装客户端并加入同一个 Network ID，在后台勾选授权成员；访问 `http://<主机的 ZeroTier IP>:3325`。
 - 连不上时运行 `node tools/doctor.mjs`：看 VPN 网卡是否被 Windows 识别为「公用网络」，是的话按 1.2 改为专用，或安装自启时加 `-AllowPublicNetwork`。
 
 ### 2.2 cloudflared 临时隧道（朋友什么都不用装）
 
 ```powershell
 winget install --id Cloudflare.cloudflared      # macOS: brew install cloudflared
-cloudflared tunnel --url http://localhost:3000
+cloudflared tunnel --url http://localhost:3325
 ```
 
 把输出的 `https://xxxx.trycloudflare.com` 发给朋友。页面是 https 时客户端自动改用 `wss://`，不需要任何配置；服务器会通过隧道转发的 `CF-Connecting-IP` 识别真实来源（`TRUST_PROXY=auto`）。临时隧道每次启动地址都不同，且没有可用性保证；需要固定地址请使用 Cloudflare 账号 + 自己域名的「命名隧道」。
@@ -175,7 +175,7 @@ cloudflared tunnel --url http://localhost:3000
 仅当你有**公网 IPv4**（很多宽带是运营商级 NAT，没有公网 IP，此时请用 2.1 / 2.2）：
 
 1. 先按 1.3 固定主机的局域网 IP。
-2. 路由器「虚拟服务器 / 端口转发」：外部端口 3000（或任意端口）→ 内部 `主机IP:3000`，TCP。
+2. 路由器「虚拟服务器 / 端口转发」：外部端口 3325（或任意端口）→ 内部 `主机IP:3325`，TCP。
 3. 朋友访问 `http://<你的公网 IP>:外部端口`。
 
 注意：游戏没有账号系统，知道地址的人都能进来。服务器对来自互联网的连接有按网络的数量限制（每个网络最多 64 个连接，房间 / 对局数量也有上限），但仍建议不玩时关掉转发，或优先用 Tailscale。
@@ -188,7 +188,7 @@ cloudflared tunnel --url http://localhost:3000
 
 ```caddy
 game.example.com {
-    reverse_proxy 127.0.0.1:3000
+    reverse_proxy 127.0.0.1:3325
 }
 ```
 
@@ -206,7 +206,7 @@ server {
     ssl_certificate_key /etc/letsencrypt/live/game.example.com/privkey.pem;
 
     location / {
-        proxy_pass http://127.0.0.1:3000;
+        proxy_pass http://127.0.0.1:3325;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection $connection_upgrade;
@@ -228,11 +228,11 @@ https / wss 说明：页面通过 https 打开时客户端自动连接 `wss://�
 ```bash
 # A) 构建时下载素材（需要联网，约 550 MB）
 docker build -t stronghold-protocol --build-arg FETCH_ASSETS=1 .
-docker run -d --name stronghold -p 3000:3000 --restart unless-stopped stronghold-protocol
+docker run -d --name stronghold -p 3325:3325 --restart unless-stopped stronghold-protocol
 
 # B) 不把素材打进镜像：先在宿主机运行 node tools/setup.mjs，然后挂载
 docker build -t stronghold-protocol .
-docker run -d --name stronghold -p 3000:3000 --restart unless-stopped \
+docker run -d --name stronghold -p 3325:3325 --restart unless-stopped \
   -v "$PWD/public/assets:/app/public/assets:ro" stronghold-protocol
 ```
 
@@ -246,7 +246,7 @@ services:
     build:
       context: .
       args: { FETCH_ASSETS: "1" }
-    ports: ["3000:3000"]
+    ports: ["3325:3325"]
     restart: unless-stopped
     environment:
       SP_VERIFY: "off"
@@ -255,6 +255,7 @@ services:
 ## 4. macOS / Linux 常驻
 
 - 临时开服：`scripts/start.sh`（或 `npm start`），保持终端窗口打开。macOS 首次会询问是否允许 node 接受传入连接，选「允许」。
+- **懒人包**（目标机器什么都不装，含 Node 与全部素材）：在一台装好 Node 22+ 与素材的机器上运行 `node scripts/make-linux-bundle.mjs`，得到 `Stronghold-Protocol-Linux/` 目录与同名 `.tar.gz`；在 Linux 上解压后 `bash start.sh` 即可（默认端口 3325，`--arch x64|arm64|both` 选内置 Node 的架构）。
 - Linux systemd（`/etc/systemd/system/stronghold.service`，路径与用户按实际修改）：
 
   ```ini
@@ -266,7 +267,7 @@ services:
   [Service]
   WorkingDirectory=/opt/Stronghold-Protocol
   ExecStart=/usr/bin/node server/index.js
-  Environment=PORT=3000 HOST=::
+  Environment=PORT=3325 HOST=::
   Restart=always
   RestartSec=5
   User=stronghold
@@ -275,14 +276,14 @@ services:
   WantedBy=multi-user.target
   ```
 
-  `sudo systemctl daemon-reload && sudo systemctl enable --now stronghold`；日志 `journalctl -u stronghold -f`；防火墙 `sudo ufw allow 3000/tcp`。
+  `sudo systemctl daemon-reload && sudo systemctl enable --now stronghold`；日志 `journalctl -u stronghold -f`；防火墙 `sudo ufw allow 3325/tcp`。
 
 ## 5. 排错
 
 | 现象 | 处理 |
 |---|---|
 | 任何问题 | `node tools/doctor.mjs`：Node 版本、依赖、素材完整性、端口、局域网地址、防火墙、网络类型 |
-| `端口已被占用 / EADDRINUSE` | 已经有一个服务器在运行（自启任务？）或其他程序占用 3000：换端口 `scripts\start-windows.bat --port 3001` |
+| `端口已被占用 / EADDRINUSE` | 已经有一个服务器在运行（自启任务？）或其他程序占用 3325：换端口 `scripts\start-windows.bat --port 3326` |
 | 朋友打不开页面 | 防火墙规则 / 网络类型（1.2）；确认用的是 `LAN` 地址而不是 `localhost`；访客 Wi-Fi 常开启「AP 隔离」；不在同一网络请看第 2 节 |
 | 画面是占位图、没有声音 | 素材没下完：重新运行 `node tools/setup.mjs`（会续传）；缺失明细在 `.cache/assets-report.json`。默认仅原始源和 jsDelivr；可用 `--asset-source=mirror` 手动开启前缀镜像（见上文） |
 | 素材下载很慢 / 失败 | 网络问题可随时中断，重新运行会跳过已完成的文件；`node tools/fetch-assets.mjs --concurrency=4` 降低并发。有文件没下载成功时，素材清单 `data/assets.json` 保持不变（脚本列出缺少的条目并以非零状态结束；游戏里缺的图片用占位图，缺的声音不播放），重新运行即可补齐 |

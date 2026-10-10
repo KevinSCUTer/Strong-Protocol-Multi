@@ -12,7 +12,7 @@
   日志 logs\server.log）→ 添加入站防火墙规则「Stronghold Protocol」（TCP 端口，专用/域网络；-AllowPublicNetwork 也放行公用网络）。
 #>
 param(
-  [int]$Port = 3000,
+  [int]$Port = 3325,
   [string]$BindHost = '::',
   [ValidateSet('client', 'server')][string]$Combat = 'client',
   [ValidateSet('off', 'sample', 'all')][string]$Verify = 'off',

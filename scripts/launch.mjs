@@ -2,7 +2,7 @@
 // scripts/launch.mjs — cross-platform "prepare + start + open the browser", used by scripts/start-windows.bat,
 // scripts/start-windows.ps1 and scripts/start.sh (docs/DEPLOY.md).
 //
-//   node scripts/launch.mjs [--port 3000] [--host ::] [--no-open] [--no-setup] [setup options…]
+//   node scripts/launch.mjs [--port 3325] [--host ::] [--no-open] [--no-setup] [setup options…]
 //
 //   1. If our server already answers on the port, just open the browser (double-clicking twice is harmless).
 //   2. An update package extracted over the folder (UPDATE.json) is finished (server/update.js; the server does it too,
@@ -34,7 +34,7 @@ const { probePort, classifyAddresses, hostUrl, KIND_LABEL } = await import('../t
 const { applyPendingUpdate, UPDATE_FILE } = await import('../server/update.js');
 
 function parseArgs(argv) {
-  const o = { port: Number(process.env.PORT) || 3000, host: process.env.HOST || '::', open: !/^(1|true|yes)$/i.test(process.env.SP_NO_BROWSER || ''), setup: true, setupArgs: [], help: false };
+  const o = { port: Number(process.env.PORT) || 3325, host: process.env.HOST || '::', open: !/^(1|true|yes)$/i.test(process.env.SP_NO_BROWSER || ''), setup: true, setupArgs: [], help: false };
   for (let i = 0; i < argv.length; i++) {
     const a = argv[i];
     const [k, v] = a.split('=');
@@ -101,7 +101,7 @@ async function main() {
   }
   if (before.state !== 'free') {
     console.error(`${mark.err} 端口 ${o.port} 被其他程序占用或无权限（${before.code || before.state}）。`);
-    console.error(`  换一个端口：${IS_WIN ? 'scripts\\start-windows.bat --port 3001' : 'scripts/start.sh --port 3001'}`);
+    console.error(`  换一个端口：${IS_WIN ? 'scripts\\start-windows.bat --port 3326' : 'scripts/start.sh --port 3326'}`);
     return 1;
   }
 

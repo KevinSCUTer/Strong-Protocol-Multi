@@ -31,7 +31,7 @@ Out of scope v1: matchmaking queue, training/tutorial, DIY (甄选) slots (the 4
 - **Shared code** in `shared/` is imported by both server and browser (pure ESM, no Node APIs).
 - Tests: `node --test` (`test/**/*.test.js`). Browser E2E: `puppeteer-core` driving the system Chrome (dev dependency, optional; puppeteer-core 25 is ESM-only and needs Node ≥ 22.12, so the suites load it with `await import`).
 
-Run: `npm install && npm run assets && npm start` → `http://localhost:3000`. Friends on LAN use `http://<host-ip>:3000`. Internet play: a tunnel (e.g. `cloudflared tunnel --url http://localhost:3000`) or any Node host (Dockerfile provided).
+Run: `npm install && npm run assets && npm start` → `http://localhost:3325`. Friends on LAN use `http://<host-ip>:3325`. Internet play: a tunnel (e.g. `cloudflared tunnel --url http://localhost:3325`) or any Node host (Dockerfile provided).
 
 ---
 

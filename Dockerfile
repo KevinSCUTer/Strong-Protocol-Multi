@@ -7,13 +7,13 @@
 #        docker build -t stronghold-protocol --build-arg FETCH_ASSETS=1 .
 #   B) build without it and mount the host's copy (prepared with `node tools/setup.mjs` on the host):
 #        docker build -t stronghold-protocol .
-#        docker run -d --name stronghold -p 3000:3000 --restart unless-stopped \
+#        docker run -d --name stronghold -p 3325:3325 --restart unless-stopped \
 #          -v "$PWD/public/assets:/app/public/assets:ro" stronghold-protocol
 #      (public/fonts, data/assets.json and data/local-assets.json are copied from the build context when present)
 # Without any art the game still runs with placeholder visuals.
 #
-# Run:  docker run -d --name stronghold -p 3000:3000 --restart unless-stopped stronghold-protocol
-# Env:  PORT (3000), HOST (0.0.0.0), SP_COMBAT (client|server), SP_VERIFY (off|sample|all), TRUST_PROXY (auto|1|0), DEBUG
+# Run:  docker run -d --name stronghold -p 3325:3325 --restart unless-stopped stronghold-protocol
+# Env:  PORT (3325), HOST (0.0.0.0), SP_COMBAT (client|server), SP_VERIFY (off|sample|all), TRUST_PROXY (auto|1|0), DEBUG
 
 ARG NODE_IMAGE=node:22-alpine
 
@@ -42,7 +42,7 @@ RUN node tools/vendor.mjs \
 # ---- 3. runtime ---------------------------------------------------------------------------------------
 FROM ${NODE_IMAGE}
 ENV NODE_ENV=production \
-    PORT=3000 \
+    PORT=3325 \
     HOST=0.0.0.0
 WORKDIR /app
 COPY --from=deps /app/package.json ./package.json
@@ -55,7 +55,7 @@ COPY --from=build /app/public ./public
 COPY --from=build /app/docs/research ./docs/research
 
 USER node
-EXPOSE 3000
+EXPOSE 3325
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
   CMD wget -q -O /dev/null "http://127.0.0.1:${PORT}/healthz" || exit 1
 CMD ["node", "server/index.js"]

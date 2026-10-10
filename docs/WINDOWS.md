@@ -105,10 +105,10 @@ Linux 上是这一档）→ Windows 自带的 `Expand-Archive`。
 |---|---|
 | 双击 `.bat` 一闪而过 | 在命令行里跑 `启动游戏.bat` 看报错，或手动运行 `node\node.exe app\scripts\launch.mjs --no-setup`（`.bat` 会在非 0 退出时暂停）。**`--no-setup` 别省**：省掉它会去联网准备素材，而且 PATH 上不一定有 `node` |
 | 提示找不到 node | 便携包应含 `node\node.exe`；没有就用 `--no-node` 的包，并自行安装 Node 22/24 LTS |
-| 端口被占用 | 关掉占用 3000 的程序（`node tools/doctor.mjs` 会指出是谁），或在启动命令后加 `--port 3001` |
+| 端口被占用 | 关掉占用 3325 的程序（`node tools/doctor.mjs` 会指出是谁），或在启动命令后加 `--port 3326` |
 | 浏览器没自动打开 | 手动访问 `http://127.0.0.1:<端口>`；`--no-open` / `SP_NO_BROWSER=1` 会禁用自动打开 |
 | 朋友连不上 | 防火墙专用网络未放行、或不在同一网段；用 `node tools/doctor.mjs` 诊断（源仓库里见 [DEPLOY.md](DEPLOY.md) 的防火墙一节） |
-| 进游戏时弹出「下载文件信息」 | 那是 IDM / 迅雷这类下载管理器在嗅探音频地址，不是游戏在下载。新版本已经改走不带扩展名的 `/media/…` 路由（见 [PR #28](https://github.com/sganggs/Stronghold-Protocol/pull/28)），**应该不会再弹**；如果还弹，把弹出的地址贴到 Issue，或在下载器里加例外（如 `http://127.0.0.1:3000/*`）、玩游戏时先退出它 |
+| 进游戏时弹出「下载文件信息」 | 那是 IDM / 迅雷这类下载管理器在嗅探音频地址，不是游戏在下载。新版本已经改走不带扩展名的 `/media/…` 路由（见 [PR #28](https://github.com/sganggs/Stronghold-Protocol/pull/28)），**应该不会再弹**；如果还弹，把弹出的地址贴到 Issue，或在下载器里加例外（如 `http://127.0.0.1:3325/*`）、玩游戏时先退出它 |
 | 首次进游戏很慢 | 每位玩家要下载几十 MB 素材（本机开服时是本机读盘），之后走浏览器缓存 |
 | 在 Linux 上打包报解压失败 | GNU tar 不认 zip：装一个 `unzip`（或在文档允许的范围内改用 macOS / Windows 打包） |
 

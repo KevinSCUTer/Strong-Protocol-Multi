@@ -89,7 +89,7 @@ export async function runMain(start) {
   try {
     srv = await start();
   } catch (e) {
-    if (e && e.code === 'EADDRINUSE') console.error(`端口已被占用 / port in use: ${e.port ?? process.env.PORT ?? 3000}. Try PORT=3001 npm start`);
+    if (e && e.code === 'EADDRINUSE') console.error(`端口已被占用 / port in use: ${e.port ?? process.env.PORT ?? 3325}. Try PORT=3326 npm start`);
     else console.error('[boot] failed to start', e);
     process.exit(1);
   }
