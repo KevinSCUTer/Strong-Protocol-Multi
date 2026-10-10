@@ -4,7 +4,9 @@
 
 鸣谢：
 开源先锋：https://github.com/sganggs/Stronghold-Protocol
+
 多人游玩：https://github.com/LongQianChen/Stronghold-Protocol/tree/feat/IncreasePlayerCapacity
+
 安卓游玩：https://github.com/Paper-Yuan/Stronghold-Protocol
 
 ![version](https://img.shields.io/badge/version-0.2.3-2ea44f)
