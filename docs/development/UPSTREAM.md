@@ -1,6 +1,6 @@
 # 上游同步与素材更新
 
-作者仓库在本地 `package.json` 中登记为 `sganggs/Stronghold-Protocol`；当前 `origin` 指向用户 fork `LongQianChen/Stronghold-Protocol`。两个来源不能混淆。本文件给出流程，不表示已经联网拉取、推送或更新线上服务器。
+作者仓库在本地 `package.json` 中登记为 `sganggs/Stronghold-Protocol`；小组仓 `KevinSCUTer/Strong-Protocol-Multi` 采用多源分支拓扑（2026-10-10 起）：`master` 只从 `upstream`（作者）快进镜像，永不直接提交；`android` 只从 `android`（Paper-Yuan/Stronghold-Protocol，安卓民间版）快进镜像，作对照参考；`main` 是唯一开发分支，定期合并 `master`，也按需从 `android` 挑选功能（见 [DEV-20261010-06](records/2026-10-10-06-android-skins.md)：皮肤功能以 cherry-pick 单提交方式移植，不整体合并其历史——其提交混有语音、WebView 兼容等与本仓无关的工作）。两个镜像分支不能混淆。本文件给出流程，不表示已经联网拉取、推送或更新线上服务器。
 
 ## 1. 先记录真实基线和范围
 

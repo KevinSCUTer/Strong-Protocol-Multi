@@ -118,6 +118,10 @@ export class PlayerRound {
           const lo = this.loadoutFor(this.gd.chess(piece.id));
           u.skillIndex = lo.skillIndex;
           u.moduleId = lo.moduleId;
+          // docs/SKINS.md: the skin this player chose for the operator (its base chess or the chess itself)
+          const baseId = (this.gd.chess(piece.id) || {}).baseId || piece.id;
+          const skin = this.skins[baseId] || this.skins[piece.id];
+          if (skin) u.skin = skin;
         }
         // 0.2.2: the potential / 练度 of an operator the player owns (the chess as itself, an owned 自选 pick — the player's
         // 干员调配 settings, 潜能 6 / 精英2 Lv.60 by default and for bots; never a stand-in's nor a prototype pick's)

@@ -13,7 +13,7 @@
 // 精英2 Lv.60) are kept; stored beside the entries (`sp.pref.loadout` = { v: 1, entries, ops }; an older stored loadout
 // has none = the defaults) and sent with `room.loadout { entries, ops }` (shared/protocol.js checkLoadoutOps).
 
-import { loadoutOptions, checkLoadout, checkLoadoutOps, resolveLoadout, MODULE_NONE, LOADOUT_LIMITS } from '../../../shared/protocol.js';
+import { loadoutOptions, checkLoadout, checkLoadoutOps, resolveLoadout, MODULE_NONE, LOADOUT_LIMITS, isSkinId, SKIN_LIMITS } from '../../../shared/protocol.js';
 import { isPotential, isCultivate, POTENTIAL_DEFAULT, CULTIVATE_DEFAULT } from '../../../shared/potential.js';
 import { t, N_ } from '../../../shared/i18n.js';
 
@@ -163,17 +163,51 @@ export const LOADOUT_EXPORT_KIND = 'stronghold.loadout';
 export const LOADOUT_IMPORT_MAX_BYTES = 256 * 1024;
 
 /**
- * Portable payload of a loadout, as downloaded / copied by 导出 — with the per-operator 潜能 / 练度 (`ops`, 0.2.2; an
- * older build reading it ignores the field).
- * @param {Record<string, any>} entries `room.loadout.entries`
- * @param {{ now?: number, ops?: Record<string, any> }} [o]
+ * Filter and sanitize skin choices `{ [chessId]: skinId }` (docs/SKINS.md): structurally valid entries only — like
+ * parseStored, without the data (the caller still checks the ids against the loaded chess).
+ * @param {any} raw
+ * @returns {Record<string, string>}
  */
-export function exportPayload(entries, { now = Date.now(), ops = {} } = {}) {
+export function sanitizeSkins(raw) {
+  const out = {};
+  if (!isObj(raw)) return out;
+  const limit = (SKIN_LIMITS && SKIN_LIMITS.entries) || 160;
+  for (const [id, skinId] of Object.entries(raw)) {
+    if (Object.keys(out).length >= limit) break;
+    if (UNSAFE_IDS.has(id) || !/^[A-Za-z0-9_\-.:]{1,64}$/.test(id)) continue;
+    if (isSkinId(skinId)) out[id] = skinId;
+  }
+  return out;
+}
+
+/**
+ * 增量合并皮肤：仅覆盖 importedSkins 中声明了的干员，其余干员保留玩家当前配置。
+ * @param {Record<string, string>|null|undefined} currentSkins
+ * @param {Record<string, string>|null|undefined} importedSkins
+ * @returns {Record<string, string>}
+ */
+export function mergeSkins(currentSkins, importedSkins) {
+  if (!isObj(importedSkins)) return currentSkins || {};
+  const next = { ...(currentSkins || {}) };
+  for (const [id, skinId] of Object.entries(importedSkins)) {
+    if (skinId) next[id] = skinId;
+    else delete next[id];
+  }
+  return next;
+}
+
+/**
+ * Portable payload of a loadout, as downloaded / copied by 导出 — with the per-operator 潜能 / 练度 (`ops`, 0.2.2; an
+ * older build reading it ignores the field) and the skin choices (`skins`, docs/SKINS.md; only when any are set).
+ * @param {Record<string, any>} entries `room.loadout.entries`
+ * @param {{ now?: number, ops?: Record<string, any>, skins?: Record<string, string>|null }} [o]
+ */
+export function exportPayload(entries, { now = Date.now(), ops = {}, skins = null } = {}) {
   const clean = {};
   for (const [id, e] of Object.entries(entries || {})) if (isObj(e)) clean[id] = { ...e };
   const cleanOps = {};
   for (const [id, e] of Object.entries(ops || {})) if (isObj(e)) cleanOps[id] = { ...e };
-  return {
+  const out = {
     kind: LOADOUT_EXPORT_KIND,
     v: LOADOUT_VERSION,
     exportedAt: new Date(Number.isFinite(now) ? now : Date.now()).toISOString(),
@@ -181,6 +215,11 @@ export function exportPayload(entries, { now = Date.now(), ops = {} } = {}) {
     entries: clean,
     ops: cleanOps,
   };
+  if (skins && isObj(skins)) {
+    const cleanSkins = sanitizeSkins(skins);
+    if (Object.keys(cleanSkins).length) out.skins = cleanSkins;
+  }
+  return out;
 }
 
 /** Pretty JSON of `exportPayload` — one preset per file / clipboard payload. */
@@ -194,9 +233,10 @@ export function serializeExport(entries, opts) {
  * only — the caller still runs `sanitizeEntries` against the loaded data, because a preset from another season may name
  * chess / skills / modules this build does not have. `__proto__` / `constructor` keys are skipped (see parseStored).
  * A payload with `ops` (0.2.2) brings the per-operator 潜能 / 练度 too (`ops` in the result — absent when the payload has
- * none: an older export leaves the current settings alone); a payload of settings only imports.
+ * none: an older export leaves the current settings alone); a payload of settings only imports. A payload with `skins`
+ * (docs/SKINS.md) brings the skin choices the same way (`skins` in the result — absent when the payload has none).
  * @param {any} input payload object or serialised text
- * @returns {{ ok: true, entries: Record<string, any>, ops?: Record<string, any> } | { ok: false, error: string }}
+ * @returns {{ ok: true, entries: Record<string, any>, ops?: Record<string, any>, skins?: Record<string, string> } | { ok: false, error: string }}
  */
 export function parseImport(input) {
   let raw = input;
@@ -214,8 +254,14 @@ export function parseImport(input) {
   if (kind && kind !== LOADOUT_EXPORT_KIND) return { ok: false, error: t('这不是干员调配的数据') };
   const entries = parseStored(raw);
   const ops = isObj(raw.ops) ? parseStoredOps(raw) : null;
-  if (!Object.keys(entries).length && !(ops && Object.keys(ops).length)) return { ok: false, error: t('里面没有有效的调配条目') };
-  return ops ? { ok: true, entries, ops } : { ok: true, entries };
+  const skins = isObj(raw.skins) ? sanitizeSkins(raw.skins) : null;
+  if (!Object.keys(entries).length && !(ops && Object.keys(ops).length) && !(skins && Object.keys(skins).length)) {
+    return { ok: false, error: t('里面没有有效的调配或皮肤条目') };
+  }
+  const res = { ok: true, entries };
+  if (ops && Object.keys(ops).length) res.ops = ops;
+  if (skins && Object.keys(skins).length) res.skins = skins;
+  return res;
 }
 
 // ---- options & choices ---------------------------------------------------------------------------------------------

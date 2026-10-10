@@ -113,6 +113,29 @@ export class PlayerBasics {
   }
 
   /**
+   * 干员皮肤 (docs/SKINS.md): replace this player's skin choices, `{ [chessId]: skinId }` — re-checked against this
+   * match's data (only a chess the player can field as itself: not golden, visible, not hidden, not a 自选, no baseId
+   * remap). Returns whether anything was accepted; bots keep the defaults.
+   * @param {Record<string, string>|null} skins
+   * @returns {boolean}
+   */
+  setSkins(skins) {
+    if (this.isBot) return false;
+    const out = {};
+    if (skins && typeof skins === 'object' && !Array.isArray(skins)) {
+      for (const [id, skinId] of Object.entries(skins)) {
+        if (typeof skinId !== 'string' || !skinId) continue;
+        const rec = this.gd.chess(id);
+        if (!rec || rec.isGolden || rec.visible === false || rec.isHidden || rec.isDiy || (rec.baseId && rec.baseId !== id)) continue;
+        out[id] = skinId;
+      }
+    }
+    this.skins = Object.freeze(out);
+    if (this.m?._privDirty) this.dirty();
+    return Object.keys(out).length > 0;
+  }
+
+  /**
    * The potential / 练度 this player's piece of chess record `chessRecord` fights at (0.2.2; shared/potential.js
    * cultivationOf over `this.ops` — defaults 潜能 6, 精英2 Lv.60): the operator the player owns — the chess fielded as
    * itself, an owned 自选 pick (its charId) — or null for a 补位 stand-in and a prototype 自选 pick.
