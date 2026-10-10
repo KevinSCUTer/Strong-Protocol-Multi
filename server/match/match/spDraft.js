@@ -5,7 +5,8 @@
 // Installed on Match.prototype by server/match/Match.js (a method container: never instantiated; `this` is the match).
 
 import { PHASE, ERR } from '../../../shared/constants.js';
-import { generateGroupDrafts, applyCard, bountyBattles, isMultiRoundBounty, bountyCard } from '../choices.js';
+import { generateDraft, generateGroupDrafts, applyCard, bountyBattles, isMultiRoundBounty, bountyCard } from '../choices.js';
+import { onPickCard } from '../botEmotes.js';
 import { weightedPick } from '../waves.js';
 import { botPickCard } from '../bot.js';
 import { OK, fail, DELAYS } from './common.js';
@@ -134,6 +135,7 @@ export class MatchSpDraft {
     try { applyCard(this, ps, card); } catch (e) { this.reportError(`applyCard ${card.id}`, e); }
     this.markPrivate(ps);
     this.markPublic();
+    onPickCard(this, ps, card); // AI bots say "思考" when they take a bounty (enabled by default; SP_BOT_EMOTES=0 silences it)
     this.startSpTurn(g);
   }
 
