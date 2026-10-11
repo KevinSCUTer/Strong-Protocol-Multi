@@ -113,6 +113,31 @@ avatar = 'avatar/' + encodeURIComponent(avatarId) + '.png'  avatarId comes from 
 The full skin art (`skin/{portraitId}b.png`) is deliberately **not** used: at ~2.5 MB each it would add ~435 MB,
 more than the entire rest of the asset set, for a thumbnail.
 
+## Deploying skins to a server (tarball)
+
+The skin files (174 avatars + battle models, ~180 MB raw) are game art and never go into git. Build one archive on a
+machine that has them, upload it, unpack it into the server's `public/assets`:
+
+```bash
+# on the machine with the files (after install-skin-spines.mjs)
+node tools/pack-skins.mjs                    # → .cache/skin-pack/Stronghold-skins-174-<hash>.tar.gz (~90 MB)
+
+# on the server, in the repo root (stop the running server first)
+tar -xzf /path/to/Stronghold-skins-174-<hash>.tar.gz -C public/assets
+git pull --ff-only                           # brings the data/assets.json that declares the skin models
+bash start.sh
+```
+
+- The archive holds **only file entries**, paths relative to `public/assets` (`char/skin_avatar/…`,
+  `spine/op/{charId}/{stem}/{front,back}/…`). A `public/assets` that is a symlink to a shared directory is followed,
+  never replaced. Unpacking before or after `git pull` makes no difference.
+- It refuses to build when any skin file the manifest declares is missing on disk, and fails above 500 MB.
+- The atlases inside are the normalised ones `processModels()` wrote, matching `data/assets.json`.
+- Without the archive, `start.sh` still works: `tools/deploy.mjs` sees the missing skin files and runs
+  `tools/install-skin-spines.mjs --download-only` (and `fetch-skin-avatars.mjs`), which only downloads and never
+  writes the tracked manifest. From a slow GitHub link that is slow, which is what the archive avoids.
+- `start.sh` fails its gate when a declared skin file is still missing, as for any other declared asset.
+
 ## Known limitations
 
 - **No skin effects.** The official per-character battle effects are `.ab` particle bundles that the project does
@@ -139,7 +164,15 @@ does not exist here; `availableSkins` reports every catalogue skin as installed.
 - The manifest's `chars[*].skins` entries are written by `node tools/inject-skins-assets.mjs` (it checks the
   local files and only emits `spine` where the skeleton exists). **Any regeneration of `data/assets.json`
   wipes them — re-run the injector afterwards.**
-- Spine skin models are not downloaded yet: battles render the operator's default model with the skin's
-  avatar. Fetch skeletons with `node tools/fetch-skin-spines.mjs`, then re-run the injector.
+- Battle models: `node tools/install-skin-spines.mjs [charId|skinId|stem…]` downloads each skin's skeleton
+  into `public/assets/spine/op/{charId}/{stem}/{front,back}/` and runs it through `processModels()` (the same
+  pipeline as the default models: atlas normalised, `anims` resolved from **the skin's own** skeleton), then writes
+  `chars[charId].skins[skinId].spine` into `data/assets.json`. Resumable; `--offline` re-parses what is on disk.
+  fexli keeps a skin with a Back model under `{stem}/Front/` + `{stem}/Back/` and one without under
+  `{stem}/Spine/` (e.g. `char_1012_skadi2_boc_4`); the Front candidates are tried in that order. The research
+  table's `battleSpine` URLs only name `Front/`, which is why the earlier `fetch-skin-spines.mjs` (removed)
+  missed the `Spine/`-only skins and copied the default model's `anims` onto skins.
+  A skin with no model on disk stays on the default model with the skin avatar.
+  After `npm run assets` (which wipes `skins`): `node tools/inject-skins-assets.mjs && node tools/install-skin-spines.mjs --offline`.
 - The loadout screen shows a 皮肤 section (`ui/skinPicker.js`) instead of the tab this commit bundled; the
   干员调配 import/export carries a `skins` map (incremental merge — see DEV-20261010-06).

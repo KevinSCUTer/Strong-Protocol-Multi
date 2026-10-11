@@ -294,8 +294,10 @@ bash start.sh
 
 素材准备每次按当前数据和下载计划检查缺项，已有资源保留；新提交引入的模型、图片、语音和字体可以增量
 补齐。原有 atlas 的缺失贴图页也需补齐，而非仅检查 skeleton/atlas 存在。共享 `public/assets`、
-`public/fonts` 的根软链接保持原样；本地提取素材继续可选。新皮肤必须由对应版本提供资源计划、清单及
-运行时消费代码，启动脚本不会自动给本分支增加另一仓库的皮肤选择功能。下载计划先发现的额外文件只落盘，
+`public/fonts` 的根软链接保持原样；本地提取素材继续可选。干员皮肤素材（头像与战斗模型，不入 git）可以
+先解压皮肤包再启动：`tar -xzf Stronghold-skins-174-<hash>.tar.gz -C public/assets`（在仓库根目录执行，包由
+`node tools/pack-skins.mjs` 生成，见 [SKINS.md](SKINS.md)）；没有皮肤包时，准备步骤会用
+`tools/install-skin-spines.mjs --download-only` 补下缺失的皮肤文件。下载计划先发现的额外文件只落盘，
 网页实际引用仍以随代码提交的清单为准。必需的已声明资源或字体未齐全时，准备以非零状态退出；重新运行
 接着补缺，不将失败记录为准备成功。
 

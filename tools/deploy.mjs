@@ -28,7 +28,8 @@
 //      newer; if that refresh fails but the cached indexes suffice and everything else passes, the preparation
 //      succeeds with a loud "refresh pending" note (never recorded as refreshed).
 //      Skin avatars the manifest declares (tools/inject-skins-assets.mjs) are outside the fetch-assets plan: the
-//      missing ones are fetched by tools/fetch-skin-avatars.mjs (not with --offline).
+//      missing ones are fetched by tools/fetch-skin-avatars.mjs (not with --offline). Skin battle models likewise by
+//      tools/install-skin-spines.mjs --download-only (or unpacked beforehand from the tools/pack-skins.mjs tarball).
 //   6. Gates (any failure exits non-zero, and the ready stamp is cleared):
 //      - fetch-assets exit code (missing avatar/portrait/Front Spine, --strict drops, …),
 //      - every /assets|/fonts file the committed data/assets.json declares exists on disk,
@@ -71,9 +72,14 @@ export const ASSETS_DIR = path.join(ROOT, 'public', 'assets');
 export const FONTS_DIR = path.join(ROOT, 'public', 'fonts');
 const FETCH_ASSETS = path.join(ROOT, 'tools', 'fetch-assets.mjs');
 const FETCH_SKIN_AVATARS = path.join(ROOT, 'tools', 'fetch-skin-avatars.mjs');
+const INSTALL_SKIN_SPINES = path.join(ROOT, 'tools', 'install-skin-spines.mjs');
 
 /** The skin avatars among the manifest files missing on disk (fetch-assets does not plan them). */
 export function skinAvatarGaps(missing) { return missing.filter((u) => u.startsWith('/assets/char/skin_avatar/')); }
+
+/** The skin battle models among the manifest files missing on disk: `/assets/spine/op/{charId}/{stem}/{front|back}/…`
+ * (the default model lives one level up, `/assets/spine/op/{charId}/{front|back}/…`). */
+export function skinSpineGaps(missing) { return missing.filter((u) => /^\/assets\/spine\/op\/[^/]+\/[^/]+\/(front|back)\//.test(u)); }
 const VENDOR_TOOL = path.join(ROOT, 'tools', 'vendor.mjs');
 const PACKAGE_LOCK = path.join(ROOT, 'package-lock.json');
 const INDEX_FILES = ['.cache/gamedata/excel/audio_data.json', '.cache/gamedata/excel/charword_table.json', '.cache/ark-models/models_data.json']
@@ -506,6 +512,13 @@ async function main() {
       if (missingSkins.length) {
         say(`\n${c.cyan('▶')} 补全皮肤头像（${missingSkins.length} 个，node tools/fetch-skin-avatars.mjs）…`);
         run(process.execPath, [FETCH_SKIN_AVATARS]);
+      }
+      // 5c. Skin battle models (tools/install-skin-spines.mjs, download only — the manifest is never written). A server
+      // that unpacked the skin tarball (tools/pack-skins.mjs) has them all and skips this.
+      const missingSpines = m ? skinSpineGaps((await manifestGaps(m, path.join(ROOT, 'public'))).missing) : [];
+      if (missingSpines.length) {
+        say(`\n${c.cyan('▶')} 补全皮肤战斗模型（${missingSpines.length} 个文件，node tools/install-skin-spines.mjs --download-only；也可解压皮肤包，见 docs/SKINS.md）…`);
+        run(process.execPath, [INSTALL_SKIN_SPINES, '--download-only']);
       }
     }
   }

@@ -135,3 +135,30 @@ test('协议层 isSkinId 与 isSkinSelection 防御校验', () => {
   assert.equal(isSkinSelection([]), false);
   assert.equal(isSkinSelection('not obj'), false);
 });
+
+test('install-skin-spines: fexli 候选目录 Front/ 优先、Spine/ 兜底，Back 单独；模型走 processModels 的形状', async () => {
+  const { skinBases, skinModelDef } = await import('../tools/install-skin-spines.mjs');
+  const b = skinBases('char_1012_skadi2', 'char_1012_skadi2_boc_4');
+  assert.match(b.front[0], /\/spine\/char_1012_skadi2\/char_1012_skadi2_boc_4\/Front\/char_1012_skadi2_boc_4$/);
+  assert.match(b.front[1], /\/char_1012_skadi2_boc_4\/Spine\/char_1012_skadi2_boc_4$/);
+  assert.match(b.back[0], /\/char_1012_skadi2_boc_4\/Back\/char_1012_skadi2_boc_4$/);
+  const m = skinModelDef('skin:x:front', 'spine/op/c/s/front/', b.front, [2, 0], 'char_1012_skadi2_boc_4');
+  assert.equal(m.skel.rel, 'spine/op/c/s/front/char_1012_skadi2_boc_4.skel');
+  assert.equal(m.atlas.rel, 'spine/op/c/s/front/char_1012_skadi2_boc_4.atlas');
+  assert.equal(m.atlas.mutable, true);
+  assert.deepEqual(m.skel.urls.map((u) => u.split('/').at(-2)), ['Front', 'Spine']);
+  assert.deepEqual(m.skillIndices, [2, 0]);
+  assert.equal(m.pngs.length, 1);
+});
+
+test('pack-skins / deploy: 皮肤素材 URL 收集与部署缺口分类', async () => {
+  const { skinAssetUrls } = await import('../tools/pack-skins.mjs');
+  const { skinSpineGaps, skinAvatarGaps } = await import('../tools/deploy.mjs');
+  const m = { chars: { c1: { avatar: '/assets/char/avatar/c1.png', spine: { front: { skel: '/assets/spine/op/c1/front/c1.skel' } },
+    skins: { 'c1@a#1': { avatar: '/assets/char/skin_avatar/c1_a_1.png', spine: { front: { skel: '/assets/spine/op/c1/c1_a_1/front/c1_a_1.skel', textures: ['/assets/spine/op/c1/c1_a_1/front/c1_a_1.png'] } } } } } } };
+  assert.deepEqual(skinAssetUrls(m), ['/assets/char/skin_avatar/c1_a_1.png', '/assets/spine/op/c1/c1_a_1/front/c1_a_1.png', '/assets/spine/op/c1/c1_a_1/front/c1_a_1.skel'],
+    'only skin files, never the default model');
+  const missing = ['/assets/spine/op/c1/front/c1.skel', '/assets/spine/op/c1/c1_a_1/back/c1_a_1.atlas', '/assets/char/skin_avatar/x.png'];
+  assert.deepEqual(skinSpineGaps(missing), ['/assets/spine/op/c1/c1_a_1/back/c1_a_1.atlas']);
+  assert.deepEqual(skinAvatarGaps(missing), ['/assets/char/skin_avatar/x.png']);
+});

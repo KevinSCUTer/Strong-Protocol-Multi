@@ -27,7 +27,7 @@
 | 服务端皮肤校验 | `basics.js setSkins`：跳过黄金/不可见/隐藏/自选/baseId 重映射棋子；`shared/protocol.js` `isSkinId`/`isSkinSelection` + C2S `room.skins`；平台层 `setSkins` 任意阶段可换、公开视图携带 | 已确认：原样移植（0.2.3 的 `PlayerState` 拆分后落入 `player/basics.js`、`player/round.js`、`player/views.js`、`match/platform.js`） |
 | 174 张头像 PNG 去哪 | 仓库硬规则「游戏美术不入 git」；本机三仓共享 `stronghold/public/assets` 软链接 | 已确认：从 `0d155d81` 提取至共享目录 `char/skin_avatar/`（Git 外）；`data/assets.json` 只提交 URL 清单 |
 | `data/assets.json` 皮肤条目如何维护 | 其清单由本仓 `fetch-assets` 流水再生成，直接手改会被下次再生成覆盖 | 已确认：保留上游 `tools/inject-skins-assets.mjs`，作为再生成后的固定补注入步骤（写入记录与 SKINS.md）；本次已执行（115 名干员 174 套） |
-| Spine 皮肤模型 | `fetch-skin-spines.mjs` 需联网下载骨骼文件，本次未执行；注入器按磁盘实际存在与否决定是否写 `skin.spine` | 已确认：本次只有头像，战斗内模型回退原皮骨骼、头像用皮肤图；骨骼后续按需补 |
+| Spine 皮肤模型 | `fetch-skin-spines.mjs`（已由 `install-skin-spines.mjs` 取代） 需联网下载骨骼文件，本次未执行；注入器按磁盘实际存在与否决定是否写 `skin.spine` | 已确认：本次只有头像，战斗内模型回退原皮骨骼、头像用皮肤图；骨骼后续按需补 |
 | `test/ui/playtest3.test.js` GAME_FILES 断言 | 扫描 `public/js/ui/*.js` 的 `data.*(…)` 调用并要求全部 ∈ GAME_FILES；`skins.js`/`skinPicker.js` 读 `skins.json` | 已确认：`skins` 加入 GAME_FILES（`gameComponents.js`）——进房预热目录文件，开销可忽略 |
 | `test/ui/standin-ui.test.js` sig 断言 | 正则钉死渲染缓存键模板；本次键加入 `|${info.skin \|\| ''}`（皮肤必须参与缓存失效） | 已确认：更新正则以匹配新键，不变量（键变化即重绘）不变 |
 | i18n 字符串 | 上游 skinPicker 硬编码中文；本仓硬规则 `t()` + 四语言包 strict | 已确认：13 条新 msgid（皮肤/已装配/导入组合文案等）四包 100% 补齐；错误文案「里面没有有效的调配或皮肤条目」随上游改键 |
@@ -68,7 +68,7 @@
 
 ## 遗留与下一步
 
-1. **皮肤 Spine 骨骼未装**：战斗内模型仍为原皮，仅头像/立绘换肤。需要时运行 `node tools/fetch-skin-spines.mjs` 后重跑注入器（其按磁盘存在性写入 `skin.spine`）。
+1. **皮肤 Spine 骨骼未装**：战斗内模型仍为原皮，仅头像/立绘换肤。需要时运行 `node tools/install-skin-spines.mjs`（下载 + 解析并直接写入 `skin.spine`，见 docs/SKINS.md）。**已于 2026-10-11 补上。**
 2. **`assets.json` 再生成会抹掉皮肤条目**：下次运行 `fetch-assets` 流水后必须重跑 `node tools/inject-skins-assets.mjs`（已写入本记录与 SKINS.md）。
 3. **分 Tab 低配适配未迁**：如小组需要（低端安卓机），另立任务移植 `lo-dtabs` 重构，需与本仓语音/潜能/Garrison 节重新编排。
 4. **`android` 分支同步**：后续 `git fetch android && git merge --ff-only android/master`；发现新功能时按本次流程评估 cherry-pick，不整体合并。

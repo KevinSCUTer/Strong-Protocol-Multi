@@ -41,41 +41,9 @@ for (const [charId, skinList] of Object.entries(research.skins || {})) {
       avatar: avatarUrl,
     };
 
-    // 只有在本地磁盘确实存在该皮肤的 Spine 骨骼时才注入 spine 字段，否则留空由渲染器平滑使用干员原皮骨骼
-    const localFrontSkel = path.join(ROOT, 'public', 'assets', 'spine', 'op', charId, stem, 'front', `${stem}.skel`);
-    if (fs.existsSync(localFrontSkel)) {
-      const defaultFront = charRec.spine?.front || {};
-      const defaultBack = charRec.spine?.back || {};
-
-      skinEntry.spine = {
-        front: {
-          skel: `/assets/spine/op/${charId}/${stem}/front/${stem}.skel`,
-          atlas: `/assets/spine/op/${charId}/${stem}/front/${stem}.atlas`,
-          textures: [`/assets/spine/op/${charId}/${stem}/front/${stem}.png`],
-          pma: false,
-          anims: defaultFront.anims || {},
-          animations: defaultFront.animations || {},
-          events: defaultFront.events || ['OnAttack', 'OnStart'],
-          hits: defaultFront.hits || {},
-          bounds: defaultFront.bounds || null,
-        },
-      };
-
-      const localBackSkel = path.join(ROOT, 'public', 'assets', 'spine', 'op', charId, stem, 'back', `${stem}.skel`);
-      if (fs.existsSync(localBackSkel)) {
-        skinEntry.spine.back = {
-          skel: `/assets/spine/op/${charId}/${stem}/back/${stem}.skel`,
-          atlas: `/assets/spine/op/${charId}/${stem}/back/${stem}.atlas`,
-          textures: [`/assets/spine/op/${charId}/${stem}/back/${stem}.png`],
-          pma: false,
-          anims: defaultBack.anims || defaultFront.anims || {},
-          animations: defaultBack.animations || defaultFront.animations || {},
-          events: defaultBack.events || ['OnAttack', 'OnStart'],
-          hits: defaultBack.hits || {},
-          bounds: defaultBack.bounds || null,
-        };
-      }
-    }
+    // 战斗 Spine 由 tools/install-skin-spines.mjs 下载并解析（anims 取自皮肤自己的骨骼，不能照抄原皮）：这里只保留已有的条目。
+    const prevSpine = charRec.skins[skinId]?.spine;
+    if (prevSpine) skinEntry.spine = prevSpine;
 
     charRec.skins[skinId] = skinEntry;
     injectedCount++;
